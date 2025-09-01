@@ -1,0 +1,99 @@
+{
+  "name": "Gamizky - Gamificación de Tareas",
+  "short_name": "Gamizky",
+  "description": "Transforma tus tareas diarias en una aventura gamificada. Completa tareas, gana recompensas y sube de nivel.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "es",
+  "categories": ["productivity", "games", "education"],
+  "icons": [
+    {
+      "src": "/gamizkyIcon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/gamizkyIcon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/gamizkyIcon.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/gamizkyIcon.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/gamizkyIcon.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/gamizkyIcon.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/gamizkyIcon.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "/gamizkyIcon.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/gamizky.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/gamizkyIcon.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nueva Tarea",
+      "short_name": "Nueva",
+      "description": "Crear una nueva tarea rápidamente",
+      "url": "/tasks?new=true",
+      "icons": [
+        {
+          "src": "/gamizkyIcon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Ver Historial",
+      "short_name": "Historial",
+      "description": "Revisar tareas completadas",
+      "url": "/history",
+      "icons": [
+        {
+          "src": "/gamizkyIcon.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

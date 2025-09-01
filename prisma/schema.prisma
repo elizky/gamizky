@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../lib/generated/prisma"
 }
 
 datasource db {
@@ -15,21 +14,21 @@ model User {
   emailVerified DateTime?
   password      String?
   image         String?
-  
+
   // Gamification fields
-  level         Int       @default(1)
-  totalXP       Int       @default(0)
-  coins         Int       @default(0)
-  streak        Int       @default(0)
-  avatar        String    @default("🎮")
-  
+  level   Int    @default(1)
+  totalXP Int    @default(0)
+  coins   Int    @default(0)
+  streak  Int    @default(0)
+  avatar  String @default("🎮")
+
   // Relations
-  accounts      Account[]
-  characters    UserCharacter[]
-  skills        UserSkill[]
-  tasks        Task[]
-  rewards      UserReward[]
-  achievements UserAchievement[]
+  accounts       Account[]
+  characters     UserCharacter[]
+  skills         UserSkill[]
+  tasks          Task[]
+  rewards        UserReward[]
+  achievements   UserAchievement[]
   calendarEvents CalendarEvent[]
 
   createdAt DateTime @default(now())
@@ -58,12 +57,12 @@ model Account {
 }
 
 model Character {
-  id        String   @id @default(cuid())
-  name      String
-  avatar    String
-  unlocked  Boolean  @default(false)
-  cost      Int?
-  
+  id       String  @id @default(cuid())
+  name     String
+  avatar   String
+  unlocked Boolean @default(false)
+  cost     Int?
+
   // Relations
   userCharacters UserCharacter[]
 
@@ -72,11 +71,11 @@ model Character {
 }
 
 model UserCharacter {
-  id          String @id @default(cuid())
+  id          String   @id @default(cuid())
   userId      String
   characterId String
   unlockedAt  DateTime @default(now())
-  
+
   // Relations
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   character Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
@@ -85,14 +84,14 @@ model UserCharacter {
 }
 
 model UserSkill {
-  id          String @id @default(cuid())
-  userId      String
-  skillType   String // "physical", "wisdom", "mental", "social", "creativity", "discipline"
-  level       Int    @default(1)
-  currentXP   Int    @default(0)
-  totalXP     Int    @default(0)
-  xpToNextLevel Int  @default(200)
-  
+  id            String @id @default(cuid())
+  userId        String
+  skillType     String // "physical", "wisdom", "mental", "social", "creativity", "discipline"
+  level         Int    @default(1)
+  currentXP     Int    @default(0)
+  totalXP       Int    @default(0)
+  xpToNextLevel Int    @default(200)
+
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -107,7 +106,7 @@ model TaskCategory {
   description   String
   primarySkill  String // "physical", "wisdom", "mental", "social", "creativity", "discipline"
   subcategories String[] // Array of subcategory names
-  
+
   // Relations
   tasks Task[]
 
@@ -116,50 +115,48 @@ model TaskCategory {
 }
 
 model Task {
-  id                String   @id @default(cuid())
+  id                String    @id @default(cuid())
   title             String
   description       String
   subcategory       String?
-  difficulty        String   // "easy", "medium", "hard"
+  difficulty        String // "easy", "medium", "hard"
   coinReward        Int
-  completed         Boolean  @default(false)
+  completed         Boolean   @default(false)
   completedAt       DateTime?
   dueDate           DateTime?
-  recurring         Boolean  @default(false)
-  recurringType     String?  // "daily", "weekly", "monthly"
+  recurring         Boolean   @default(false)
+  recurringType     String? // "daily", "weekly", "monthly"
   scheduledFor      DateTime?
-  spontaneous       Boolean  @default(false)
-  estimatedDuration Int?     // in minutes
-  
+  spontaneous       Boolean   @default(false)
+  estimatedDuration Int? // in minutes
+
   // Skill rewards as JSON object (matching mockTasks structure)
-  skillRewards      Json     @default("{}")
-  
+  skillRewards Json @default("{}")
+
   // Relations
-  categoryId        String
-  category          TaskCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  
-  userId            String
-  user              User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  calendarEvents    CalendarEvent[]
+  categoryId String
+  category   TaskCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  calendarEvents CalendarEvent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-
-
 model Reward {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   title       String
   description String
   cost        Int
-  type        String   // "internal", "external", "cosmetic", "character"
+  type        String // "internal", "external", "cosmetic", "character"
   category    String
   icon        String
-  available   Boolean  @default(true)
-  rarity      String?  // "common", "rare", "epic", "legendary"
-  
+  available   Boolean @default(true)
+  rarity      String? // "common", "rare", "epic", "legendary"
+
   // Relations
   userRewards UserReward[]
 
@@ -168,27 +165,27 @@ model Reward {
 }
 
 model UserReward {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
   rewardId  String
-  claimed   Boolean  @default(false)
+  claimed   Boolean   @default(false)
   claimedAt DateTime?
-  
+
   // Relations
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reward  Reward  @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reward Reward @relation(fields: [rewardId], references: [id], onDelete: Cascade)
 
   @@unique([userId, rewardId])
 }
 
 model Achievement {
-  id              String   @id @default(cuid())
-  title           String
-  description     String
-  icon            String
-  requirement     String
-  rarity          String?  // "common", "rare", "epic", "legendary"
-  
+  id          String  @id @default(cuid())
+  title       String
+  description String
+  icon        String
+  requirement String
+  rarity      String? // "common", "rare", "epic", "legendary"
+
   // Relations
   userAchievements UserAchievement[]
 
@@ -197,12 +194,12 @@ model Achievement {
 }
 
 model UserAchievement {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   userId        String
   achievementId String
-  unlocked      Boolean  @default(false)
+  unlocked      Boolean   @default(false)
   unlockedAt    DateTime?
-  
+
   // Relations
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
@@ -214,12 +211,12 @@ model CalendarEvent {
   id        String   @id @default(cuid())
   date      DateTime
   completed Boolean  @default(false)
-  type      String   // "scheduled", "recurring"
-  
+  type      String // "scheduled", "recurring"
+
   // Relations
   taskId String
   task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  
+
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 

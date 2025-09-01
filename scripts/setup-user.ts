@@ -1,7 +1,7 @@
-import { PrismaClient } from '../lib/generated/prisma';
+import { PrismaClient } from '@prisma/client';
 import { mockTasks } from '../lib/data';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient
 
 async function setupUser() {
   try {
@@ -19,7 +19,7 @@ async function setupUser() {
 
     // Crear habilidades iniciales para el usuario
     const skillTypes = ['physical', 'wisdom', 'mental', 'social', 'creativity', 'discipline'];
-    
+
     for (const skillType of skillTypes) {
       await prisma.userSkill.upsert({
         where: {
@@ -85,7 +85,6 @@ async function setupUser() {
     console.log(`📝 Created ${mockTasks.length} initial tasks`);
     console.log(`🧠 Created skills for user`);
     console.log(`⚔️ Assigned Warrior character`);
-
   } catch (error) {
     console.error('❌ Error setting up user:', error);
   } finally {

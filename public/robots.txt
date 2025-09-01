@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://gamizky.com/sitemap.xml
+
+# Disallow admin and private routes
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+
+# Allow public pages
+Allow: /
+Allow: /landing
+Allow: /what-is
+Allow: /login
+
+# Crawl delay
+Crawl-delay: 1

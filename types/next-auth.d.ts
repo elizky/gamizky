@@ -18,3 +18,10 @@ declare module 'next-auth/jwt' {
     role?: string;
   }
 }
+
+// Extender Window para Service Worker
+declare global {
+  interface Window {
+    workbox?: unknown;
+  }
+}
