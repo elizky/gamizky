@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { getTaskHistory } from '@/actions';
 import HistoryClient from '@/components/pages/HistoryClient';
-import { PrismaTask } from '@/types/prisma';
+import { PrismaTask } from "@/lib/types";
 
 // Forzar renderizado dinámico para evitar errores de prerender
 export const dynamic = 'force-dynamic';

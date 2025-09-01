@@ -8,13 +8,7 @@ async function getUser() {
   if (!session?.user?.email) return null;
 
   return await db.user.findUnique({
-    where: { email: session.user.email },
-    include: {
-      skills: true,
-      characters: {
-        include: { character: true }
-      }
-    }
+    where: { email: session.user.email }
   });
 }
 
@@ -66,35 +60,6 @@ async function getStatsData() {
   // Obtener nombres de categorías
   const categories = await db.taskCategory.findMany();
 
-  // Estadísticas de challenges
-  const totalUserChallenges = await db.userChallenge.count({
-    where: { userId: user.id }
-  });
-
-  const completedChallenges = await db.userChallenge.count({
-    where: { 
-      userId: user.id,
-      completed: true 
-    }
-  });
-
-  // Estadísticas de compras
-  const totalPurchases = await db.userReward.count({
-    where: { userId: user.id }
-  });
-
-  // Calcular total gastado obteniendo las recompensas compradas
-  const userRewards = await db.userReward.findMany({
-    where: { userId: user.id },
-    include: {
-      reward: {
-        select: { cost: true }
-      }
-    }
-  });
-
-  const totalSpent = userRewards.reduce((sum, userReward) => sum + userReward.reward.cost, 0);
-
   // Tareas completadas por día (últimos 30 días)
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -133,10 +98,8 @@ async function getStatsData() {
       totalTasks,
       completedTasks,
       completionRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
-      totalUserChallenges,
-      completedChallenges,
-      totalPurchases,
-      totalSpent: totalSpent
+      currentStreak: user.streak,
+      totalXP: user.totalXP
     },
     tasksByCategory: tasksByCategory.map(stat => {
       const category = categories.find(c => c.id === stat.categoryId);

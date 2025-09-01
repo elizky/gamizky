@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { deleteTask } from '../../actions';
-import type { PrismaTask } from '../../types/prisma';
+import type { PrismaTask } from "@/lib/types";
 
 interface HistoryClientProps {
   completedTasks: PrismaTask[];

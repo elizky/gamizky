@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { getTasks, getCategories } from '@/actions';
 import TasksClient from '@/components/pages/TasksClient';
-import { PrismaTask, PrismaTaskCategory } from '@/types/prisma';
+import { PrismaTask, PrismaTaskCategory } from "@/lib/types";
 
 // Forzar renderizado dinámico para evitar errores de prerender
 export const dynamic = 'force-dynamic';

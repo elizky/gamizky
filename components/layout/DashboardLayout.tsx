@@ -6,10 +6,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { formatXP, formatCoins } from '../../lib/gamification';
 import ResetLevelsButton from './ResetLevelsButton';
-import type { PrismaUser } from '../../types/prisma';
+import type { PrismaUserWithExtras } from '../../lib/types';
 
 interface DashboardLayoutProps {
-  user: PrismaUser;
+  user: PrismaUserWithExtras;
   children: React.ReactNode;
 }
 
@@ -20,11 +20,8 @@ export default function DashboardLayout({ user, children }: DashboardLayoutProps
   const navigation = [
     { name: 'Inicio', href: '/home', icon: '🏠' },
     { name: 'Tareas', href: '/tasks', icon: '📝' },
-    { name: 'Challenges', href: '/challenges', icon: '🏆' },
-    { name: 'Tienda', href: '/shop', icon: '🛍️' },
     { name: 'Estadísticas', href: '/stats', icon: '📊' },
     { name: 'Historial', href: '/history', icon: '📚' },
-    { name: 'Perfil', href: '/profile', icon: '👤' },
   ];
 
   const isActive = (href: string) => {

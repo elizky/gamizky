@@ -12,7 +12,7 @@ export default function LoginPage() {
     // Verificar si ya está autenticado
     getSession().then((session) => {
       if (session) {
-        router.push("/");
+        router.push("/home");
       }
     });
   }, [router]);
@@ -20,7 +20,7 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
-      await signIn("google", { callbackUrl: "/" });
+      await signIn("google", { callbackUrl: "/home" });
     } catch (error) {
       console.error("Error signing in:", error);
       setIsLoading(false);

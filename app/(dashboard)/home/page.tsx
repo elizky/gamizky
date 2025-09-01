@@ -1,7 +1,9 @@
 import { Suspense } from 'react';
 import { getProfile, getTasks, getCategories } from '../../../actions';
 import HomeClient from '../../../components/pages/HomeClient';
-import { PrismaUser, PrismaTask } from '../../../types/prisma';
+import { PrismaUserWithExtras, PrismaTask } from '../../../lib/types';
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
 
 // Forzar renderizado dinámico para evitar errores de prerender
 export const dynamic = 'force-dynamic';
@@ -20,6 +22,11 @@ function LoadingSpinner() {
 
 // Componente principal del servidor
 export default async function HomePage() {
+  const session = await auth();
+  if (!session?.user?.email) {
+    redirect('/login');
+  }
+  
   try {
     const [profileResult, tasksResult, categoriesResult] = await Promise.all([
       getProfile(),
@@ -28,33 +35,35 @@ export default async function HomePage() {
     ]);
 
     if (!profileResult.success) {
-      throw new Error(profileResult.error);
+      console.error('Profile error:', profileResult.error);
+      redirect('/login');
     }
     if (!tasksResult.success) {
-      throw new Error(tasksResult.error);
+      console.error('Tasks error:', tasksResult.error);
+      throw new Error('Error al cargar las tareas');
     }
     if (!categoriesResult.success) {
-      throw new Error(categoriesResult.error);
+      console.error('Categories error:', categoriesResult.error);
+      throw new Error('Error al cargar las categorías');
     }
 
-    const user = profileResult.data as PrismaUser;
+    const user = profileResult.data as PrismaUserWithExtras;
     const tasks = tasksResult.data as PrismaTask[];
     const categories = categoriesResult.data;
 
     // Verificar que los datos no sean undefined
     if (!user) {
-      throw new Error('User data not found');
-    }
-    if (!tasks) {
-      throw new Error('Tasks data not found');
-    }
-    if (!categories) {
-      throw new Error('Categories data not found');
+      console.error('User data is null');
+      redirect('/login');
     }
 
     return (
       <Suspense fallback={<LoadingSpinner />}>
-        <HomeClient user={user} tasks={tasks} categories={categories} />
+        <HomeClient 
+          user={user} 
+          tasks={tasks || []} 
+          categories={categories || []} 
+        />
       </Suspense>
     );
   } catch (error) {
@@ -69,12 +78,12 @@ export default async function HomePage() {
           <p className='text-gray-600 mb-4'>
             {error instanceof Error ? error.message : 'Ocurrió un error inesperado'}
           </p>
-          <button
-            onClick={() => window.location.reload()}
-            className='bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors'
+          <a
+            href='/login'
+            className='bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-block'
           >
-            Reintentar
-          </button>
+            Ir a login
+          </a>
         </div>
       </div>
     );

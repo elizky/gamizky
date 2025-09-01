@@ -38,7 +38,7 @@ export default function LandingPage() {
 
             {/* Hero Description */}
             <p className='text-2xl md:text-3xl text-gray-700 mb-12 max-w-4xl mx-auto leading-tight font-medium'>
-              Convierte tareas aburridas en una aventura épica. 
+              Convierte tareas aburridas en una aventura épica.
               <br />
               <span className='font-bold'>Gana XP • Sube de Nivel • Desbloquea Logros</span>
             </p>
@@ -68,14 +68,14 @@ export default function LandingPage() {
           <h2 className='text-5xl font-black text-black text-center mb-16 tracking-tight'>
             CARACTERÍSTICAS ÉPICAS
           </h2>
-          
+
           <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
             {/* Feature 1: XP System */}
             <div className='bg-blue-500 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8'>
               <div className='w-20 h-20 bg-yellow-400 border-4 border-black mb-6 mx-auto'></div>
               <h3 className='text-2xl font-black text-white mb-4'>SISTEMA XP</h3>
               <p className='text-white text-lg leading-relaxed'>
-                Gana experiencia por cada tarea completada. 
+                Gana experiencia por cada tarea completada.
                 <span className='font-bold'>¡Sube de nivel constantemente!</span>
               </p>
             </div>
@@ -85,7 +85,7 @@ export default function LandingPage() {
               <div className='w-20 h-20 bg-yellow-400 border-4 border-black mb-6 mx-auto'></div>
               <h3 className='text-2xl font-black text-white mb-4'>LOGROS</h3>
               <p className='text-white text-lg leading-relaxed'>
-                Desbloquea logros especiales y gana monedas para 
+                Desbloquea logros especiales y gana monedas para
                 <span className='font-bold'>personalizar tu experiencia</span>
               </p>
             </div>
@@ -95,7 +95,7 @@ export default function LandingPage() {
               <div className='w-20 h-20 bg-yellow-400 border-4 border-black mb-6 mx-auto'></div>
               <h3 className='text-2xl font-black text-white mb-4'>PROGRESO</h3>
               <p className='text-white text-lg leading-relaxed'>
-                Visualiza tu progreso con gráficos y estadísticas 
+                Visualiza tu progreso con gráficos y estadísticas
                 <span className='font-bold'>detalladas</span>
               </p>
             </div>
@@ -109,7 +109,7 @@ export default function LandingPage() {
           <h2 className='text-5xl font-black text-black text-center mb-16 tracking-tight'>
             ¿CÓMO FUNCIONA?
           </h2>
-          
+
           <div className='grid grid-cols-1 md:grid-cols-4 gap-6'>
             {/* Step 1 */}
             <div className='text-center'>
@@ -156,7 +156,7 @@ export default function LandingPage() {
           <h2 className='text-5xl font-black text-black text-center mb-16 tracking-tight'>
             ESTADÍSTICAS IMPRESIONANTES
           </h2>
-          
+
           <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
             <div className='text-center'>
               <div className='text-6xl font-black text-black mb-4'>10K+</div>
@@ -181,7 +181,7 @@ export default function LandingPage() {
             ¿LISTO PARA LA AVENTURA?
           </h2>
           <p className='text-2xl text-gray-300 mb-12 leading-relaxed'>
-            Únete a miles de personas que ya están transformando 
+            Únete a miles de personas que ya están transformando
             <br />
             <span className='font-bold text-white'>sus vidas con gamificación</span>
           </p>

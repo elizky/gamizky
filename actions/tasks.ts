@@ -3,8 +3,7 @@
 import { db } from '@/server/db/prisma';
 import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
-import { updateChallengeProgress } from './challenges';
-import { checkAndUnlockAchievements } from './achievements';
+
 
 export async function getTasks() {
   try {
@@ -189,11 +188,64 @@ export async function completeTask(id: string) {
       include: { category: true },
     });
 
-          // Actualizar progreso de challenges del usuario
-      await updateChallengeProgress(session.user.id);
+    // Aplicar recompensas XP y coins al completar tarea
+    const skillRewards = existingTask.skillRewards as Record<string, number>;
+    const totalXPGained = Object.values(skillRewards).reduce((sum, xp) => sum + xp, 0);
+    
+    // Actualizar usuario con XP total
+    await db.user.update({
+      where: { id: session.user.id },
+      data: {
+        totalXP: { increment: totalXPGained },
+        level: { increment: Math.floor(totalXPGained / 200) }, // Simplificado: 200 XP por nivel
+      }
+    });
 
-    // Verificar y desbloquear achievements
-    await checkAndUnlockAchievements(session.user.id);
+    // Actualizar habilidades específicas
+    for (const [skillType, xpAmount] of Object.entries(skillRewards)) {
+      if (xpAmount > 0) {
+        // Obtener o crear la habilidad del usuario
+        const existingSkill = await db.userSkill.findUnique({
+          where: {
+            userId_skillType: {
+              userId: session.user.id,
+              skillType: skillType
+            }
+          }
+        });
+
+        if (existingSkill) {
+          // Calcular nuevo XP y nivel
+          const newCurrentXP = existingSkill.currentXP + xpAmount;
+          const newTotalXP = existingSkill.totalXP + xpAmount;
+          const xpForNextLevel = existingSkill.level * 200;
+          const newLevel = existingSkill.level + Math.floor(newCurrentXP / xpForNextLevel);
+          const finalCurrentXP = newCurrentXP % xpForNextLevel;
+
+          await db.userSkill.update({
+            where: { id: existingSkill.id },
+            data: {
+              currentXP: finalCurrentXP,
+              totalXP: newTotalXP,
+              level: newLevel,
+              xpToNextLevel: xpForNextLevel - finalCurrentXP
+            }
+          });
+        } else {
+          // Crear nueva habilidad si no existe
+          await db.userSkill.create({
+            data: {
+              userId: session.user.id,
+              skillType: skillType,
+              currentXP: xpAmount,
+              totalXP: xpAmount,
+              level: Math.floor(xpAmount / 200) + 1,
+              xpToNextLevel: 200 - (xpAmount % 200)
+            }
+          });
+        }
+      }
+    }
 
     revalidatePath('/tasks');
     revalidatePath('/');

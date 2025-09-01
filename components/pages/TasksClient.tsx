@@ -3,8 +3,9 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createTask, updateTask, deleteTask, completeTask } from '../../actions';
-import type { PrismaTask, PrismaTaskCategory } from '../../types/prisma';
+import { updateTask, deleteTask, completeTask } from '../../actions';
+import type { PrismaTask, PrismaTaskCategory } from '../../lib/types';
+import { AddTaskModal } from '../modals';
 
 interface TasksClientProps {
   tasks: PrismaTask[];
@@ -15,21 +16,13 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
   const router = useRouter();
   const [tasks, setTasks] = useState<PrismaTask[]>(initialTasks);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+  const [showEditTaskModal, setShowEditTaskModal] = useState(false);
+  const [editingTask, setEditingTask] = useState<PrismaTask | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [newTask, setNewTask] = useState({
-    title: '',
-    description: '',
-    categories: [{ categoryId: '', points: 50 }] as Array<{ categoryId: string; points: number }>,
-    difficulty: 'medium' as 'easy' | 'medium' | 'hard',
-    skillRewards: {} as Record<string, number>,
-    estimatedDuration: 0,
-    recurring: true,
-    recurringType: 'daily' as 'daily' | 'weekly' | 'monthly',
-  });
 
   // Filtrar y buscar tareas
   const filteredTasks = useMemo(() => {
@@ -61,62 +54,10 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
     });
   }, [tasks, filter, searchTerm]);
 
-  const addTask = async () => {
-    if (!newTask.title.trim() || !newTask.categories.some((cat) => cat.categoryId)) return;
-
-    try {
-      setIsSubmitting(true);
-      setError(null);
-
-      const skillRewards: Record<string, number> = {};
-      const coinReward = 25;
-
-      newTask.categories.forEach((cat) => {
-        if (cat.categoryId) {
-          const category = categories.find((c) => c.id === cat.categoryId);
-          if (category) {
-            if (skillRewards[category.primarySkill]) {
-              skillRewards[category.primarySkill] += cat.points;
-            } else {
-              skillRewards[category.primarySkill] = cat.points;
-            }
-          }
-        }
-      });
-
-      const result = await createTask({
-        ...newTask,
-        skillRewards,
-        coinReward,
-      });
-
-      if (result.success) {
-        const task = result.data;
-        if (task) {
-          setTasks((prev) => [task as PrismaTask, ...prev]);
-        }
-        setNewTask({
-          title: '',
-          description: '',
-          categories: [{ categoryId: '', points: 50 }],
-          difficulty: 'medium',
-          skillRewards: {},
-          estimatedDuration: 0,
-          recurring: true,
-          recurringType: 'daily',
-        });
-        setShowAddTaskModal(false);
-        setSuccess('Tarea creada exitosamente');
-        router.refresh();
-      } else {
-        setError(result.error || 'Error al crear la tarea');
-      }
-    } catch (error) {
-      console.error('Error adding task:', error);
-      setError('Error inesperado al crear la tarea');
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleTaskCreated = (task: PrismaTask) => {
+    setTasks((prev) => [task, ...prev]);
+    setSuccess('Tarea creada exitosamente');
+    router.refresh();
   };
 
   const toggleTask = async (taskId: string) => {
@@ -168,6 +109,48 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
     } catch (error) {
       console.error('Error deleting task:', error);
       setError('Error inesperado al eliminar la tarea');
+    }
+  };
+
+  const openEditModal = (task: PrismaTask) => {
+    setEditingTask(task);
+    setShowEditTaskModal(true);
+  };
+
+  const updateExistingTask = async () => {
+    if (!editingTask) return;
+
+    try {
+      setIsSubmitting(true);
+      setError(null);
+
+      const result = await updateTask(editingTask.id, {
+        title: editingTask.title,
+        description: editingTask.description,
+        categoryId: editingTask.categoryId,
+        difficulty: editingTask.difficulty,
+        estimatedDuration: editingTask.estimatedDuration || undefined,
+        recurringType: editingTask.recurringType || undefined,
+      });
+
+      if (result.success && result.data) {
+        setTasks((prev) =>
+          prev.map((task) =>
+            task.id === editingTask.id ? (result.data as PrismaTask) : task
+          )
+        );
+        setShowEditTaskModal(false);
+        setEditingTask(null);
+        setSuccess('Tarea actualizada exitosamente');
+        router.refresh();
+      } else {
+        setError(result.error || 'Error al actualizar la tarea');
+      }
+    } catch (error) {
+      console.error('Error updating task:', error);
+      setError('Error inesperado al actualizar la tarea');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -366,13 +349,22 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                   <div className='text-xs text-gray-500'>
                     +{task.skillRewards[task.category.primarySkill]} XP
                   </div>
-                  <button
-                    onClick={() => removeTask(task.id)}
-                    className='mt-2 px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors'
-                    title='Eliminar tarea'
-                  >
-                    🗑️
-                  </button>
+                  <div className='flex gap-1 mt-2'>
+                    <button
+                      onClick={() => openEditModal(task)}
+                      className='px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors'
+                      title='Editar tarea'
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      onClick={() => removeTask(task.id)}
+                      className='px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors'
+                      title='Eliminar tarea'
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -400,15 +392,26 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
         </div>
       </div>
 
-      {/* Modal para agregar tarea */}
-      {showAddTaskModal && (
+      {/* Modal reutilizable para agregar tarea */}
+      <AddTaskModal
+        open={showAddTaskModal}
+        onOpenChange={setShowAddTaskModal}
+        categories={categories}
+        onTaskCreated={handleTaskCreated}
+      />
+
+      {/* Modal para editar tarea */}
+      {showEditTaskModal && editingTask && (
         <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50'>
           <div className='bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto'>
             <div className='p-6'>
               <div className='flex items-center justify-between mb-6'>
-                <h2 className='text-2xl font-bold text-gray-800'>Agregar Nueva Tarea</h2>
+                <h2 className='text-2xl font-bold text-gray-800'>Editar Tarea</h2>
                 <button
-                  onClick={() => setShowAddTaskModal(false)}
+                  onClick={() => {
+                    setShowEditTaskModal(false);
+                    setEditingTask(null);
+                  }}
                   className='text-gray-400 hover:text-gray-600 text-2xl'
                 >
                   ✕
@@ -421,9 +424,8 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                   <label className='block text-sm font-medium text-gray-700 mb-2'>Título *</label>
                   <input
                     type='text'
-                    placeholder='Ej: Hacer ejercicio 30 minutos'
-                    value={newTask.title}
-                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                    value={editingTask.title}
+                    onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
                     className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                   />
                 </div>
@@ -435,106 +437,40 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                   </label>
                   <input
                     type='text'
-                    placeholder='Descripción opcional de la tarea'
-                    value={newTask.description}
-                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                    value={editingTask.description}
+                    onChange={(e) =>
+                      setEditingTask({ ...editingTask, description: e.target.value })
+                    }
                     className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                   />
                 </div>
 
-                {/* Categorías y Puntos */}
-                <div className='space-y-3'>
-                  {newTask.categories.map((cat, index) => (
-                    <div key={index} className='grid grid-cols-2 gap-4'>
-                      <div>
-                        <label className='block text-sm font-medium text-gray-700 mb-1'>
-                          Categoría {index + 1} *
-                        </label>
-                        <select
-                          value={cat.categoryId}
-                          onChange={(e) => {
-                            const categoryId = e.target.value;
-                            setNewTask((prev) => ({
-                              ...prev,
-                              categories: prev.categories.map((c, i) =>
-                                i === index ? { ...c, categoryId } : c
-                              ),
-                            }));
-                          }}
-                          className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                        >
-                          <option value=''>Seleccionar categoría</option>
-                          {categories.map((cat) => (
-                            <option key={cat.id} value={cat.id}>
-                              {cat.icon} {cat.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className='flex gap-2'>
-                        <div className='flex-1'>
-                          <label className='block text-sm font-medium text-gray-700 mb-1'>
-                            Puntos
-                          </label>
-                          <input
-                            type='number'
-                            min='0'
-                            placeholder='50'
-                            value={cat.points}
-                            onChange={(e) => {
-                              setNewTask((prev) => ({
-                                ...prev,
-                                categories: prev.categories.map((c, i) =>
-                                  i === index ? { ...c, points: parseInt(e.target.value) || 0 } : c
-                                ),
-                              }));
-                            }}
-                            className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-                          />
-                        </div>
-
-                        {newTask.categories.length > 1 && (
-                          <button
-                            onClick={() => {
-                              setNewTask((prev) => ({
-                                ...prev,
-                                categories: prev.categories.filter((_, i) => i !== index),
-                              }));
-                            }}
-                            className='mt-6 px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors'
-                            title='Remover categoría'
-                          >
-                            ✕
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className='text-center'>
-                  <button
-                    onClick={() => {
-                      setNewTask((prev) => ({
-                        ...prev,
-                        categories: [...prev.categories, { categoryId: '', points: 50 }],
-                      }));
-                    }}
-                    className='text-blue-600 hover:text-blue-700 text-sm font-medium'
+                {/* Categoría */}
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    Categoría *
+                  </label>
+                  <select
+                    value={editingTask.categoryId}
+                    onChange={(e) => setEditingTask({ ...editingTask, categoryId: e.target.value })}
+                    className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                   >
-                    + agregar categoría
-                  </button>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.icon} {cat.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Dificultad */}
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-2'>Dificultad</label>
                   <select
-                    value={newTask.difficulty}
+                    value={editingTask.difficulty}
                     onChange={(e) =>
-                      setNewTask({
-                        ...newTask,
+                      setEditingTask({
+                        ...editingTask,
                         difficulty: e.target.value as 'easy' | 'medium' | 'hard',
                       })
                     }
@@ -553,10 +489,10 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                       Recurrencia
                     </label>
                     <select
-                      value={newTask.recurringType}
+                      value={editingTask.recurringType || 'daily'}
                       onChange={(e) =>
-                        setNewTask({
-                          ...newTask,
+                        setEditingTask({
+                          ...editingTask,
                           recurringType: e.target.value as 'daily' | 'weekly' | 'monthly',
                         })
                       }
@@ -573,11 +509,10 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                     <input
                       type='number'
                       min='0'
-                      placeholder='30'
-                      value={newTask.estimatedDuration}
+                      value={editingTask.estimatedDuration || 0}
                       onChange={(e) =>
-                        setNewTask({
-                          ...newTask,
+                        setEditingTask({
+                          ...editingTask,
                           estimatedDuration: parseInt(e.target.value) || 0,
                         })
                       }
@@ -589,21 +524,20 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                 {/* Botones de acción */}
                 <div className='flex gap-3 pt-4 border-t'>
                   <button
-                    onClick={() => setShowAddTaskModal(false)}
+                    onClick={() => {
+                      setShowEditTaskModal(false);
+                      setEditingTask(null);
+                    }}
                     className='flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors'
                   >
                     Cancelar
                   </button>
                   <button
-                    onClick={addTask}
-                    disabled={
-                      !newTask.title.trim() ||
-                      !newTask.categories.some((cat) => cat.categoryId) ||
-                      isSubmitting
-                    }
+                    onClick={updateExistingTask}
+                    disabled={!editingTask.title.trim() || isSubmitting}
                     className='flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed'
                   >
-                    {isSubmitting ? 'Creando...' : 'Crear Tarea'}
+                    {isSubmitting ? 'Actualizando...' : 'Actualizar Tarea'}
                   </button>
                 </div>
               </div>

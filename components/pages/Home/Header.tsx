@@ -1,86 +1,100 @@
 import Link from 'next/link';
-import { PrismaUser } from '@/types/prisma';
-// import { formatXP, formatCoins } from '@/lib/gamification';
+import { PrismaUserWithExtras } from '@/lib/types';
+import { NeoCard, NeoCardContent } from '@/components/ui/card';
 
-const Header = ({ user }: { user: PrismaUser }) => {
+const Header = ({ user }: { user: PrismaUserWithExtras }) => {
   const currentLevelXP = user.totalXP % 200;
   const xpToNextLevel = 200 - currentLevelXP;
   const progressPercentage = (currentLevelXP / 200) * 100;
 
   return (
-    <div className='bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl p-6 mb-6 shadow-lg'>
-      <div className='flex items-center justify-between mb-4'>
-        <div className='flex-1'>
-          <h1 className='text-3xl font-bold mb-1'>¡Hola, {user.name}!</h1>
-          <p className='text-blue-100 text-lg'>
-            Nivel {user.level} • Racha de {user.streak} días 🔥
+    <NeoCard className='p-4 mb-4'>
+      <NeoCardContent className='p-0'>
+        {/* Avatar Section - Centered */}
+        <div className='flex justify-center mb-6'>
+          <div className='relative'>
+            <div className='w-24 h-24 bg-yellow-300 border-4 border-black rounded-none flex items-center justify-center text-4xl'>
+              {user.avatar}
+            </div>
+            <div className='absolute -bottom-2 -right-2 w-8 h-8 bg-red-500 border-2 border-black rounded-none flex items-center justify-center text-white text-sm font-black'>
+              {user.level}
+            </div>
+          </div>
+        </div>
+
+        {/* Greeting - Bold Typography */}
+        <div className='text-center mb-6'>
+          <h1 className='text-2xl font-black text-black mb-1 uppercase tracking-wider'>
+            ¡Hola, {user.name}!
+          </h1>
+          <p className='text-sm font-bold text-gray-600 uppercase tracking-wide'>
+            Racha de {user.streak} días 🔥
           </p>
         </div>
-        <div className='flex items-center gap-6'>
-          {/* Stats rápidos */}
-          <div className='text-center'>
-            <div className='text-2xl font-bold'>{user.totalXP.toLocaleString()}</div>
-            <div className='text-xs text-blue-200'>XP Total</div>
-          </div>
-          <div className='text-center'>
-            <div className='text-2xl font-bold text-yellow-300'>{user.coins.toLocaleString()}</div>
-            <div className='text-xs text-blue-200'>Monedas</div>
-          </div>
-          <div className='text-center'>
-            <div className='text-4xl'>{user.avatar}</div>
-            <p className='text-xs text-blue-200'>{user.character?.name || 'Sin personaje'}</p>
-          </div>
-        </div>
-      </div>
 
-      {/* Barra de progreso mejorada */}
-      <div className='mb-4'>
-        <div className='flex justify-between text-sm text-blue-100 mb-2'>
-          <span>Nivel {user.level}</span>
-          <span className='font-medium'>{currentLevelXP} / 200 XP</span>
-          <span>Nivel {user.level + 1}</span>
+        {/* Stats Grid - Asymmetric Layout */}
+        <div className='grid grid-cols-3 gap-3 mb-6'>
+          <div className='bg-blue-400 border-2 border-black p-3 text-center'>
+            <div className='text-xl font-black text-white'>{user.totalXP.toLocaleString()}</div>
+            <div className='text-xs font-bold text-black uppercase'>XP</div>
+          </div>
+          <div className='bg-yellow-400 border-2 border-black p-3 text-center'>
+            <div className='text-xl font-black text-black'>{user.coins.toLocaleString()}</div>
+            <div className='text-xs font-bold text-black uppercase'>Coins</div>
+          </div>
+          <div className='bg-green-400 border-2 border-black p-3 text-center'>
+            <div className='text-xs font-black text-black uppercase leading-tight'>
+              {user.character?.name || 'Sin personaje'}
+            </div>
+          </div>
         </div>
-        <div className='w-full bg-blue-500/30 rounded-full h-3 relative overflow-hidden'>
-          <div
-            className='bg-gradient-to-r from-yellow-400 to-orange-400 h-3 rounded-full transition-all duration-500 ease-out relative'
-            style={{ width: `${progressPercentage}%` }}
+
+        {/* Progress Bar - Gamified */}
+        <div className='mb-6'>
+          <div className='flex justify-between text-xs font-bold text-black mb-2 uppercase tracking-wide'>
+            <span>Nivel {user.level}</span>
+            <span>{currentLevelXP}/200</span>
+            <span>Nivel {user.level + 1}</span>
+          </div>
+          <div className='w-full bg-gray-200 border-2 border-black h-4 relative'>
+            <div
+              className='bg-gradient-to-r from-purple-500 to-pink-500 h-full transition-all duration-700 ease-out relative'
+              style={{ width: `${progressPercentage}%` }}
+            >
+              <div className='absolute inset-0 bg-white/30 animate-pulse'></div>
+            </div>
+            {/* XP Text Overlay */}
+            <div className='absolute inset-0 flex items-center justify-center'>
+              <span className='text-xs font-black text-white drop-shadow-lg'>
+                {xpToNextLevel} XP para subir
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions - Clean Grid */}
+        <div className='grid grid-cols-2 gap-3'>
+          <Link
+            href='/tasks'
+            className='bg-orange-400 border-2 border-black p-3 text-center font-black text-black uppercase tracking-wide hover:bg-orange-500 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1'
           >
-            <div className='absolute inset-0 bg-white/20 animate-pulse rounded-full'></div>
-          </div>
+            📝 Tareas
+          </Link>
+          <Link
+            href='/history'
+            className='bg-purple-400 border-2 border-black p-3 text-center font-black text-black uppercase tracking-wide hover:bg-purple-500 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1'
+          >
+            📚 Historial
+          </Link>
+          <Link
+            href='/stats'
+            className='bg-red-400 border-2 border-black p-3 text-center font-black text-black uppercase tracking-wide hover:bg-red-500 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1'
+          >
+            📊 Stats
+          </Link>
         </div>
-        <div className='text-center text-xs text-blue-200 mt-1'>
-          {xpToNextLevel} XP para el siguiente nivel
-        </div>
-      </div>
-
-      {/* Quick actions */}
-      <div className='flex gap-3'>
-        <Link 
-          href='/tasks'
-          className='flex-1 bg-white/20 hover:bg-white/30 transition-colors rounded-lg p-3 text-center text-sm font-medium'
-        >
-          📝 Tareas
-        </Link>
-        <Link 
-          href='/challenges'
-          className='flex-1 bg-white/20 hover:bg-white/30 transition-colors rounded-lg p-3 text-center text-sm font-medium'
-        >
-          🏆 Challenges
-        </Link>
-        <Link 
-          href='/shop'
-          className='flex-1 bg-white/20 hover:bg-white/30 transition-colors rounded-lg p-3 text-center text-sm font-medium'
-        >
-          🛍️ Tienda
-        </Link>
-        <Link 
-          href='/stats'
-          className='flex-1 bg-white/20 hover:bg-white/30 transition-colors rounded-lg p-3 text-center text-sm font-medium'
-        >
-          📊 Stats
-        </Link>
-      </div>
-    </div>
+      </NeoCardContent>
+    </NeoCard>
   );
 };
 

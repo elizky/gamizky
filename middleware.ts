@@ -1,7 +1,31 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { auth } from '@/auth';
 
-export function middleware(request: NextRequest) {
+export default auth((req) => {
+  const { nextUrl } = req;
+  const isLoggedIn = !!req.auth;
+
+  // Rutas públicas que no requieren autenticación
+  const publicRoutes = ['/', '/login', '/api/auth'];
+  const isPublicRoute = publicRoutes.some(
+    (route) => nextUrl.pathname === route || nextUrl.pathname.startsWith('/api/auth')
+  );
+
+  // Rutas protegidas que requieren autenticación
+  const protectedRoutes = ['/home', '/tasks', '/history', '/stats'];
+  const isProtectedRoute = protectedRoutes.some((route) => nextUrl.pathname.startsWith(route));
+
+  // Si no está logueado y trata de acceder a ruta protegida
+  if (!isLoggedIn && isProtectedRoute) {
+    return NextResponse.redirect(new URL('/login', nextUrl));
+  }
+
+  // Si está logueado y trata de acceder a login
+  if (isLoggedIn && nextUrl.pathname === '/login') {
+    return NextResponse.redirect(new URL('/home', nextUrl));
+  }
+
   const response = NextResponse.next();
 
   // Agregar headers para PWA
@@ -10,22 +34,21 @@ export function middleware(request: NextRequest) {
   response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
 
   // Cache para assets estáticos
-  if (request.nextUrl.pathname.startsWith('/_next/') || 
-      request.nextUrl.pathname.startsWith('/api/') ||
-      request.nextUrl.pathname.includes('.')) {
+  if (
+    nextUrl.pathname.startsWith('/_next/') ||
+    nextUrl.pathname.startsWith('/api/') ||
+    nextUrl.pathname.includes('.')
+  ) {
     response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
   }
 
   // Cache para páginas del dashboard
-  if (request.nextUrl.pathname.startsWith('/home') ||
-      request.nextUrl.pathname.startsWith('/tasks') ||
-      request.nextUrl.pathname.startsWith('/history') ||
-      request.nextUrl.pathname.startsWith('/profile')) {
+  if (isProtectedRoute) {
     response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
   }
 
   return response;
-}
+});
 
 export const config = {
   matcher: [

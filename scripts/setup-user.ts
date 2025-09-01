@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { mockTasks } from '../lib/data';
 
-const prisma = new PrismaClient
+const prisma = new PrismaClient();
 
 async function setupUser() {
   try {
@@ -62,27 +61,51 @@ async function setupUser() {
       });
     }
 
-    // Crear tareas iniciales usando mockTasks
-    for (const mockTask of mockTasks) {
+    // Crear algunas tareas iniciales básicas
+    const basicTasks = [
+      {
+        title: 'Hacer 30 minutos de ejercicio',
+        description: 'Cualquier actividad física que te guste',
+        categoryId: 'physical',
+        subcategory: 'Cardio',
+        difficulty: 'medium' as const,
+        skillRewards: { physical: 50 },
+        coinReward: 25,
+      },
+      {
+        title: 'Leer 20 páginas de un libro',
+        description: 'Continúa con tu lectura actual o empieza uno nuevo',
+        categoryId: 'wisdom',
+        subcategory: 'Lectura',
+        difficulty: 'easy' as const,
+        skillRewards: { wisdom: 30 },
+        coinReward: 15,
+      },
+      {
+        title: 'Organizar escritorio',
+        description: 'Mantén tu espacio de trabajo limpio y organizado',
+        categoryId: 'discipline',
+        subcategory: 'Organización',
+        difficulty: 'easy' as const,
+        skillRewards: { discipline: 25 },
+        coinReward: 10,
+      },
+    ];
+
+    for (const task of basicTasks) {
       await prisma.task.create({
         data: {
-          title: mockTask.title,
-          description: mockTask.description,
-          categoryId: mockTask.category.id,
-          subcategory: mockTask.subcategory,
-          difficulty: mockTask.difficulty,
-          skillRewards: mockTask.skillRewards as Record<string, number>,
-          coinReward: mockTask.coinReward,
-          recurring: mockTask.recurring,
-          recurringType: mockTask.recurringType,
-          estimatedDuration: mockTask.estimatedDuration,
+          ...task,
+          recurring: true,
+          recurringType: 'daily',
+          estimatedDuration: 30,
           userId: user.id,
         },
       });
     }
 
     console.log('✅ User setup completed successfully!');
-    console.log(`📝 Created ${mockTasks.length} initial tasks`);
+    console.log(`📝 Created ${basicTasks.length} initial tasks`);
     console.log(`🧠 Created skills for user`);
     console.log(`⚔️ Assigned Warrior character`);
   } catch (error) {
