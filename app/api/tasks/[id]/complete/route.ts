@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server';
 import { db } from '@/server/db/prisma';
 import { auth } from '@/auth';
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await auth();
 
@@ -10,7 +13,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const taskId = params.id;
+    const { id: taskId } = await params;
 
     // Obtener la tarea con sus recompensas
     const task = await db.task.findUnique({
@@ -56,7 +59,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
 }
 
 // Función para aplicar recompensas al completar
-async function applyTaskRewards(task: any, userId: string) {
+async function applyTaskRewards(task: { skillRewards: unknown; coinReward: number }, userId: string) {
   // Obtener o crear las habilidades del usuario
   const userSkills = await db.userSkill.findMany({
     where: { userId },

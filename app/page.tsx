@@ -62,34 +62,36 @@ export default function Home() {
   // Cargar datos solo una vez cuando se autentica
   useEffect(() => {
     if (status === 'authenticated' && session?.user && !user) {
-      loadData();
+      // Función inline para evitar dependencia circular
+      const fetchData = async () => {
+        try {
+          setLoading(true);
+
+          // Cargar categorías
+          const categoriesRes = await fetch('/api/task-categories');
+          const categoriesData = await categoriesRes.json();
+          setCategories(categoriesData);
+
+          // Cargar perfil del usuario
+          const profileRes = await fetch('/api/user/profile');
+          const profileData = await profileRes.json();
+          setUser(profileData);
+
+          // Cargar tareas
+          const tasksRes = await fetch('/api/tasks');
+          const tasksData = await tasksRes.json();
+          setTasks(tasksData);
+        } catch (error) {
+          console.error('Error loading data:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchData();
     }
   }, [status, session, user]);
 
-  const loadData = useCallback(async () => {
-    try {
-      setLoading(true);
 
-      // Cargar categorías
-      const categoriesRes = await fetch('/api/task-categories');
-      const categoriesData = await categoriesRes.json();
-      setCategories(categoriesData);
-
-      // Cargar perfil del usuario
-      const profileRes = await fetch('/api/user/profile');
-      const profileData = await profileRes.json();
-      setUser(profileData);
-
-      // Cargar tareas
-      const tasksRes = await fetch('/api/tasks');
-      const tasksData = await tasksRes.json();
-      setTasks(tasksData);
-    } catch (error) {
-      console.error('Error loading data:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   const addTask = useCallback(async () => {
     if (!newTask.title.trim() || !newTask.categories.some((cat) => cat.categoryId)) return;
