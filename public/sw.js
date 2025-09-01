@@ -5,6 +5,9 @@ const urlsToCache = [
   '/login',
   '/home',
   '/tasks',
+  '/challenges',
+  '/shop',
+  '/stats',
   '/history',
   '/profile',
   '/manifest.json',
@@ -65,31 +68,78 @@ function doBackgroundSync() {
 
 // Push notification handling
 self.addEventListener('push', (event) => {
+  let notificationData = {
+    title: '🎮 Gamizky',
+    body: 'Nueva notificación de Gamizky',
+    type: 'general',
+    url: '/home'
+  };
+
+  if (event.data) {
+    try {
+      notificationData = JSON.parse(event.data.text());
+    } catch (e) {
+      notificationData.body = event.data.text();
+    }
+  }
+
+  // Personalizar notificación según el tipo
+  let icon = '/gamizkyIcon.png';
+  let actions = [];
+
+  switch (notificationData.type) {
+    case 'task_reminder':
+      icon = '📝';
+      actions = [
+        { action: 'view_tasks', title: '📝 Ver Tareas' },
+        { action: 'dismiss', title: '✕ Cerrar' }
+      ];
+      break;
+    case 'achievement_unlocked':
+      icon = '🏅';
+      actions = [
+        { action: 'view_achievements', title: '🏅 Ver Logros' },
+        { action: 'dismiss', title: '✕ Cerrar' }
+      ];
+      break;
+    case 'challenge_available':
+      icon = '🏆';
+      actions = [
+        { action: 'view_challenges', title: '🏆 Ver Challenges' },
+        { action: 'dismiss', title: '✕ Cerrar' }
+      ];
+      break;
+    case 'streak_reminder':
+      icon = '🔥';
+      actions = [
+        { action: 'view_tasks', title: '🔥 Mantener Racha' },
+        { action: 'dismiss', title: '✕ Cerrar' }
+      ];
+      break;
+    default:
+      actions = [
+        { action: 'open_app', title: '🎮 Abrir App' },
+        { action: 'dismiss', title: '✕ Cerrar' }
+      ];
+  }
+
   const options = {
-    body: event.data ? event.data.text() : 'Nueva notificación de Gamizky',
+    body: notificationData.body,
     icon: '/gamizkyIcon.png',
     badge: '/gamizkyIcon.png',
-    vibrate: [100, 50, 100],
+    vibrate: [200, 100, 200],
     data: {
       dateOfArrival: Date.now(),
-      primaryKey: 1
+      url: notificationData.url || '/home',
+      type: notificationData.type
     },
-    actions: [
-      {
-        action: 'explore',
-        title: 'Ver tareas',
-        icon: '/gamizkyIcon.png'
-      },
-      {
-        action: 'close',
-        title: 'Cerrar',
-        icon: '/gamizkyIcon.png'
-      }
-    ]
+    actions: actions,
+    requireInteraction: true,
+    tag: notificationData.type || 'general'
   };
 
   event.waitUntil(
-    self.registration.showNotification('Gamizky', options)
+    self.registration.showNotification(notificationData.title, options)
   );
 });
 
@@ -97,9 +147,42 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  if (event.action === 'explore') {
-    event.waitUntil(
-      clients.openWindow('/tasks')
-    );
+  let urlToOpen = '/home';
+
+  // Determinar URL según la acción
+  switch (event.action) {
+    case 'view_tasks':
+      urlToOpen = '/tasks';
+      break;
+    case 'view_achievements':
+      urlToOpen = '/profile'; // O donde muestres achievements
+      break;
+    case 'view_challenges':
+      urlToOpen = '/challenges';
+      break;
+    case 'open_app':
+      urlToOpen = event.notification.data.url || '/home';
+      break;
+    case 'dismiss':
+      return; // No hacer nada, solo cerrar
+    default:
+      // Click en el cuerpo de la notificación
+      urlToOpen = event.notification.data.url || '/home';
   }
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        // Si ya hay una ventana abierta, enfocarla y navegar
+        for (let i = 0; i < clientList.length; i++) {
+          const client = clientList[i];
+          if (client.url.includes(self.location.origin)) {
+            client.focus();
+            return client.navigate(urlToOpen);
+          }
+        }
+        // Si no hay ventana abierta, abrir una nueva
+        return clients.openWindow(urlToOpen);
+      })
+  );
 });

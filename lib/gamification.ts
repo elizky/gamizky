@@ -35,5 +35,5 @@ export function formatXP(xp: number): string {
 }
 
 export function formatCoins(coins: number): string {
-  return `${coins.toLocaleString()} 🪙`
+  return `${coins.toLocaleString()} Coinzkys 💰`
 }

@@ -30,6 +30,7 @@ model User {
   rewards        UserReward[]
   achievements   UserAchievement[]
   calendarEvents CalendarEvent[]
+  challenges     UserChallenge[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -162,6 +163,61 @@ model Reward {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Challenge {
+  id          String @id @default(cuid())
+  title       String
+  description String
+  icon        String
+  type        String // "daily", "weekly", "skill", "diversity", "temporal"
+  difficulty  String // "easy", "medium", "hard", "epic"
+  
+  // Recompensas del challenge
+  xpReward    Int    @default(0)
+  coinReward  Int    @default(0)
+  
+  // Requisitos del challenge (JSON)
+  requirements Json  @default("{}")
+  
+  // Fechas de disponibilidad
+  startDate   DateTime?
+  endDate     DateTime?
+  
+  // Estado del challenge
+  active      Boolean @default(true)
+  featured    Boolean @default(false)
+  
+  // Metadata
+  rarity      String? // "common", "rare", "epic", "legendary"
+  category    String? // "fitness", "learning", "social", etc.
+  
+  // Relations
+  userChallenges UserChallenge[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserChallenge {
+  id          String    @id @default(cuid())
+  userId      String
+  challengeId String
+  
+  // Progreso del challenge
+  progress    Int       @default(0)
+  target      Int       @default(1)
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  
+  // Metadata del progreso (JSON para flexibilidad)
+  progressData Json     @default("{}")
+  
+  // Relations
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, challengeId])
 }
 
 model UserReward {

@@ -20,6 +20,9 @@ export default function DashboardLayout({ user, children }: DashboardLayoutProps
   const navigation = [
     { name: 'Inicio', href: '/home', icon: '🏠' },
     { name: 'Tareas', href: '/tasks', icon: '📝' },
+    { name: 'Challenges', href: '/challenges', icon: '🏆' },
+    { name: 'Tienda', href: '/shop', icon: '🛍️' },
+    { name: 'Estadísticas', href: '/stats', icon: '📊' },
     { name: 'Historial', href: '/history', icon: '📚' },
     { name: 'Perfil', href: '/profile', icon: '👤' },
   ];

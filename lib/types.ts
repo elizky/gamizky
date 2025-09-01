@@ -105,6 +105,60 @@ export interface Achievement {
   skillRequirement?: Partial<Record<keyof UserSkills, number>>;
 }
 
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  type: 'daily' | 'weekly' | 'skill' | 'diversity' | 'temporal';
+  difficulty: 'easy' | 'medium' | 'hard' | 'epic';
+  xpReward: number;
+  coinReward: number;
+  requirements: ChallengeRequirements;
+  startDate?: Date;
+  endDate?: Date;
+  active: boolean;
+  featured: boolean;
+  rarity?: 'common' | 'rare' | 'epic' | 'legendary';
+  category?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UserChallenge {
+  id: string;
+  userId: string;
+  challengeId: string;
+  progress: number;
+  target: number;
+  completed: boolean;
+  completedAt?: Date;
+  progressData: Record<string, any>;
+  challenge: Challenge;
+}
+
+export interface ChallengeRequirements {
+  type: string;
+  // Para challenges diarios
+  tasksToComplete?: number;
+  
+  // Para challenges de habilidad
+  skillType?: keyof UserSkills;
+  skillLevel?: number;
+  
+  // Para challenges de diversidad
+  categoriesRequired?: string[];
+  
+  // Para challenges de racha
+  streakDays?: number;
+  
+  // Para challenges temporales
+  deadline?: Date;
+  
+  // Metadata adicional
+  [key: string]: any;
+}
+
 export interface User {
   id: string;
   name: string;

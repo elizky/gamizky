@@ -77,6 +77,13 @@ http://localhost:3000
 npm run setup:user
 ```
 
+### **8. Poblar challenges, tienda y achievements (OPCIONAL)**
+```bash
+npm run seed:challenges
+npm run seed:shop
+npm run seed:achievements
+```
+
 ## 🎮 **CÓMO USAR GAMIZKY**
 
 ### **Primera vez:**
@@ -130,13 +137,23 @@ npm run setup:user
 - 🎮 Personajes y sistema de niveles
 - 🔄 APIs REST completas
 
+### **🆕 NUEVAS FUNCIONALIDADES IMPLEMENTADAS:**
+- ✅ **🏆 Sistema de Challenges** - Desafíos épicos con diferentes tipos
+- ✅ **🛍️ Tienda de Recompensas** - Intercambia monedas por premios increíbles
+- ✅ **📊 Estadísticas Avanzadas** - Dashboard visual con gráficos y métricas
+- ✅ **🏅 Sistema de Achievements** - Logros automáticos por completar objetivos
+- ✅ **📈 Progreso Visual** - Barras de progreso y gráficos interactivos
+- ✅ **👤 Personajes Desbloqueables** - Avatares únicos para tu perfil
+- ✅ **🎯 Tipos de Challenges:** Diarios, Semanales, de Habilidad, Diversidad y Temporales
+- ✅ **🎨 Header Mejorado** - Información visual y accesos rápidos
+
 ### **🔮 Próximas Funcionalidades:**
 - [ ] Notificaciones push
 - [ ] Modo oscuro
-- [ ] Estadísticas avanzadas con gráficos
 - [ ] Sistema de amigos y competencia
-- [ ] Misiones diarias y semanales
 - [ ] Exportar datos de progreso
+- [ ] Rankings globales
+- [ ] Tournaments semanales
 
 ## 🚀 **DEPLOY EN PRODUCCIÓN**
 

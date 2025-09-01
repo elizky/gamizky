@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { formatXP, formatCoins } from '../../lib/gamification';
 import { createTask, updateTask, deleteTask, completeTask } from '../../actions';
 import type { PrismaUser, PrismaTask, PrismaTaskCategory } from '../../types/prisma';
+import Header from './Home/Header';
+import NotificationManager from '../NotificationManager';
 
 interface HomeClientProps {
   user: PrismaUser;
@@ -174,42 +174,10 @@ export default function HomeClient({ user, tasks: initialTasks, categories }: Ho
         )}
 
         {/* Header con stats del usuario */}
-        <div className='bg-white rounded-2xl shadow-lg p-6 mb-6'>
-          <div className='flex items-center justify-between'>
-            <div className='flex-1'>
-              <h1 className='text-3xl font-bold text-gray-800'>¡Hola, {user.name}! 👋</h1>
-              <p className='text-gray-600'>
-                Nivel {user.level} • {formatXP(user.totalXP)} • {formatCoins(user.coins)}
-              </p>
-            </div>
-            <div className='flex items-center gap-4'>
-              <div className='text-right'>
-                <div className='text-2xl'>{user.avatar}</div>
-                <p className='text-sm text-gray-500'>{user.character?.name || 'Sin personaje'}</p>
-              </div>
-              <button
-                onClick={() => signOut({ callbackUrl: '/login' })}
-                className='px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors'
-              >
-                Cerrar sesión
-              </button>
-            </div>
-          </div>
+        <Header user={user} />
 
-          {/* Barra de progreso */}
-          <div className='mt-4'>
-            <div className='flex justify-between text-sm text-gray-600 mb-1'>
-              <span>Nivel {user.level}</span>
-              <span>Nivel {user.level + 1}</span>
-            </div>
-            <div className='w-full bg-gray-200 rounded-full h-2'>
-              <div
-                className='bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300'
-                style={{ width: `${(user.totalXP % 200) / 2}%` }}
-              ></div>
-            </div>
-          </div>
-        </div>
+        {/* Gestor de notificaciones */}
+        <NotificationManager userId={user.id} />
 
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
           {/* Panel de tareas pendientes */}

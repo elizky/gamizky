@@ -3,6 +3,8 @@
 import { db } from '@/server/db/prisma';
 import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
+import { updateChallengeProgress } from './challenges';
+import { checkAndUnlockAchievements } from './achievements';
 
 export async function getTasks() {
   try {
@@ -180,9 +182,18 @@ export async function completeTask(id: string) {
 
     const updatedTask = await db.task.update({
       where: { id },
-      data: { completed: true },
+      data: { 
+        completed: true,
+        completedAt: new Date()
+      },
       include: { category: true },
     });
+
+    // Actualizar progreso de challenges del usuario
+    await updateChallengeProgress(session.user.id, updatedTask);
+
+    // Verificar y desbloquear achievements
+    await checkAndUnlockAchievements(session.user.id);
 
     revalidatePath('/tasks');
     revalidatePath('/');
