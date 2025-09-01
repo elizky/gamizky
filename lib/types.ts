@@ -133,7 +133,7 @@ export interface UserChallenge {
   target: number;
   completed: boolean;
   completedAt?: Date;
-  progressData: Record<string, any>;
+  progressData: Record<string, unknown>;
   challenge: Challenge;
 }
 
@@ -156,7 +156,7 @@ export interface ChallengeRequirements {
   deadline?: Date;
   
   // Metadata adicional
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface User {

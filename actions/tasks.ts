@@ -189,8 +189,8 @@ export async function completeTask(id: string) {
       include: { category: true },
     });
 
-    // Actualizar progreso de challenges del usuario
-    await updateChallengeProgress(session.user.id, updatedTask);
+          // Actualizar progreso de challenges del usuario
+      await updateChallengeProgress(session.user.id);
 
     // Verificar y desbloquear achievements
     await checkAndUnlockAchievements(session.user.id);

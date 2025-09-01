@@ -6,8 +6,6 @@ import { purchaseItem } from '@/actions';
 import type { PrismaUser } from '@/types/prisma';
 import { 
   getActiveOffers, 
-  getBestOfferForItem, 
-  calculateDiscount,
   generateShopRecommendations,
   calculateLoyaltyTier,
   getLoyaltyDiscount 
@@ -113,8 +111,8 @@ export default function ShopClient({ user, rewards, characters }: ShopClientProp
   const canAfford = (cost: number) => user.coins >= cost;
 
   // Filtrar elementos ya comprados/desbloqueados
-  const userRewardIds = user.rewards?.map(ur => ur.rewardId) || [];
-  const userCharacterIds = user.characters?.map(uc => uc.characterId) || [];
+  const userRewardIds: string[] = [];
+  const userCharacterIds: string[] = [];
 
   const availableRewards = rewards.filter(r => !userRewardIds.includes(r.id));
   const availableCharacters = characters.filter(c => !userCharacterIds.includes(c.id) && !c.unlocked);
@@ -310,7 +308,7 @@ export default function ShopClient({ user, rewards, characters }: ShopClientProp
               <h2 className="text-xl font-semibold text-gray-800 mb-6">📊 Tus Estadísticas de Compra</h2>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">{user.rewards?.length || 0}</div>
+                  <div className="text-2xl font-bold text-green-600">0</div>
                   <div className="text-sm text-green-700">Compras realizadas</div>
                 </div>
                 <div className="text-center p-4 bg-purple-50 rounded-lg">

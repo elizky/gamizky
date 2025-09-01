@@ -107,7 +107,7 @@ export async function POST(request: Request) {
     const existingUserChallenge = await db.userChallenge.findUnique({
       where: {
         userId_challengeId: {
-          userId: session.user.id,
+          userId: session.user.id!,
           challengeId: challengeId
         }
       }
@@ -121,31 +121,34 @@ export async function POST(request: Request) {
     }
 
     // Determinar el target basado en los requirements
-    const requirements = challenge.requirements as any;
+    const requirements = challenge.requirements as Record<string, unknown>;
     let target = 1;
     
-    switch (requirements.type) {
-      case 'daily':
-        target = requirements.tasksToComplete || 1;
-        break;
-      case 'streak':
-        target = requirements.streakDays || 1;
-        break;
-      case 'skill':
-        target = requirements.skillLevel || 1;
-        break;
-      case 'diversity':
-        target = requirements.categoriesRequired?.length || 1;
-        break;
-      case 'temporal':
-        target = requirements.tasksToComplete || 1;
-        break;
+    if (typeof requirements === 'object' && requirements !== null) {
+      switch (requirements.type as string) {
+        case 'daily':
+          target = (requirements.tasksToComplete as number) || 1;
+          break;
+        case 'streak':
+          target = (requirements.streakDays as number) || 1;
+          break;
+        case 'skill':
+          target = (requirements.skillLevel as number) || 1;
+          break;
+        case 'diversity':
+          const categories = requirements.categoriesRequired as unknown[];
+          target = Array.isArray(categories) ? categories.length : 1;
+          break;
+        case 'temporal':
+          target = (requirements.tasksToComplete as number) || 1;
+          break;
+      }
     }
 
     // Crear la entrada de UserChallenge
     const userChallenge = await db.userChallenge.create({
       data: {
-        userId: session.user.id,
+        userId: session.user.id!,
         challengeId: challengeId,
         progress: 0,
         target: target,

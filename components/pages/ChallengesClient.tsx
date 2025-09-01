@@ -14,7 +14,7 @@ interface ChallengeWithProgress {
   difficulty: string;
   xpReward: number;
   coinReward: number;
-  requirements: any;
+  requirements: Record<string, unknown>;
   startDate?: Date | null;
   endDate?: Date | null;
   active: boolean;
@@ -26,7 +26,7 @@ interface ChallengeWithProgress {
     target: number;
     completed: boolean;
     completedAt?: Date | null;
-    progressData: any;
+    progressData: Record<string, unknown>;
   } | null;
 }
 

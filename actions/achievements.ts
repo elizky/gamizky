@@ -100,17 +100,17 @@ export async function checkAndUnlockAchievements(userId: string) {
 
         case 'Alcanzar nivel 5 en Físico':
           const physicalSkill = user.skills.find(s => s.skillType === 'physical');
-          shouldUnlock = physicalSkill && physicalSkill.level >= 5;
+          shouldUnlock = !!(physicalSkill && physicalSkill.level >= 5);
           break;
 
         case 'Alcanzar nivel 10 en Sabiduría':
           const wisdomSkill = user.skills.find(s => s.skillType === 'wisdom');
-          shouldUnlock = wisdomSkill && wisdomSkill.level >= 10;
+          shouldUnlock = !!(wisdomSkill && wisdomSkill.level >= 10);
           break;
 
         case 'Alcanzar nivel 5 en Social':
           const socialSkill = user.skills.find(s => s.skillType === 'social');
-          shouldUnlock = socialSkill && socialSkill.level >= 5;
+          shouldUnlock = !!(socialSkill && socialSkill.level >= 5);
           break;
 
         case 'Completar 10 tareas':

@@ -4,7 +4,7 @@ import { db } from '@/server/db/prisma';
 import ShopClient from '@/components/pages/ShopClient';
 import type { PrismaUser } from '@/types/prisma';
 
-async function getUser(): Promise<PrismaUser | null> {
+async function getUser() {
   const session = await auth();
   if (!session?.user?.email) return null;
 
@@ -50,7 +50,7 @@ export default async function ShopPage() {
 
   return (
     <ShopClient 
-      user={user} 
+      user={user as unknown as PrismaUser} 
       rewards={rewards}
       characters={characters}
     />

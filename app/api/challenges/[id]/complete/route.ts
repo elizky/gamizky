@@ -19,7 +19,7 @@ export async function POST(
     const userChallenge = await db.userChallenge.findUnique({
       where: {
         userId_challengeId: {
-          userId: session.user.id,
+          userId: session.user.id!,
           challengeId: challengeId
         }
       },
@@ -54,7 +54,7 @@ export async function POST(
     const completedUserChallenge = await db.userChallenge.update({
       where: {
         userId_challengeId: {
-          userId: session.user.id,
+          userId: session.user.id!,
           challengeId: challengeId
         }
       },

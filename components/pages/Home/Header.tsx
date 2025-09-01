@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { PrismaUser } from '@/types/prisma';
-import { formatXP, formatCoins } from '@/lib/gamification';
+// import { formatXP, formatCoins } from '@/lib/gamification';
 
 const Header = ({ user }: { user: PrismaUser }) => {
   const currentLevelXP = user.totalXP % 200;

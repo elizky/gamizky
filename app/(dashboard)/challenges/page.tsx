@@ -4,7 +4,7 @@ import { db } from '@/server/db/prisma';
 import ChallengesClient from '@/components/pages/ChallengesClient';
 import type { PrismaUser } from '@/types/prisma';
 
-async function getUser(): Promise<PrismaUser | null> {
+async function getUser() {
   const session = await auth();
   if (!session?.user?.email) return null;
 
@@ -66,12 +66,13 @@ async function getChallenges() {
     
     return {
       ...challenge,
+      requirements: challenge.requirements as Record<string, unknown>,
       userProgress: userProgress ? {
         progress: userProgress.progress,
         target: userProgress.target,
         completed: userProgress.completed,
         completedAt: userProgress.completedAt,
-        progressData: userProgress.progressData
+        progressData: userProgress.progressData as Record<string, unknown>
       } : null
     };
   });
@@ -88,7 +89,7 @@ export default async function ChallengesPage() {
 
   return (
     <ChallengesClient 
-      user={user} 
+      user={user as unknown as PrismaUser} 
       challenges={challenges}
     />
   );

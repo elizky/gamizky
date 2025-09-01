@@ -2,7 +2,7 @@
 
 import { auth } from '@/auth';
 import { db } from '@/server/db/prisma';
-import type { Challenge, UserChallenge } from '@/lib/types';
+import type { Prisma } from '@prisma/client';
 
 export async function getChallenges() {
   try {
@@ -85,7 +85,7 @@ export async function joinChallenge(challengeId: string) {
     const existingUserChallenge = await db.userChallenge.findUnique({
       where: {
         userId_challengeId: {
-          userId: session.user.id,
+          userId: session.user.id!,
           challengeId: challengeId
         }
       }
@@ -96,31 +96,34 @@ export async function joinChallenge(challengeId: string) {
     }
 
     // Determinar el target basado en los requirements
-    const requirements = challenge.requirements as any;
+    const requirements = challenge.requirements as Record<string, unknown>;
     let target = 1;
     
-    switch (requirements.type) {
-      case 'daily':
-        target = requirements.tasksToComplete || 1;
-        break;
-      case 'streak':
-        target = requirements.streakDays || 1;
-        break;
-      case 'skill':
-        target = requirements.skillLevel || 1;
-        break;
-      case 'diversity':
-        target = requirements.categoriesRequired?.length || 1;
-        break;
-      case 'temporal':
-        target = requirements.tasksToComplete || 1;
-        break;
+    if (typeof requirements === 'object' && requirements !== null) {
+      switch (requirements.type as string) {
+        case 'daily':
+          target = (requirements.tasksToComplete as number) || 1;
+          break;
+        case 'streak':
+          target = (requirements.streakDays as number) || 1;
+          break;
+        case 'skill':
+          target = (requirements.skillLevel as number) || 1;
+          break;
+        case 'diversity':
+          const categories = requirements.categoriesRequired as unknown[];
+          target = Array.isArray(categories) ? categories.length : 1;
+          break;
+        case 'temporal':
+          target = (requirements.tasksToComplete as number) || 1;
+          break;
+      }
     }
 
     // Crear la entrada de UserChallenge
     const userChallenge = await db.userChallenge.create({
       data: {
-        userId: session.user.id,
+        userId: session.user.id!,
         challengeId: challengeId,
         progress: 0,
         target: target,
@@ -149,7 +152,7 @@ export async function getUserChallenges() {
       },
       orderBy: [
         { completed: 'asc' },
-        { createdAt: 'desc' }
+        { id: 'desc' }
       ]
     });
 
@@ -161,7 +164,7 @@ export async function getUserChallenges() {
 }
 
 // Función para actualizar el progreso de challenges cuando se completa una tarea
-export async function updateChallengeProgress(userId: string, taskData: any) {
+export async function updateChallengeProgress(userId: string) {
   try {
     // Obtener challenges activos del usuario
     const userChallenges = await db.userChallenge.findMany({
@@ -175,10 +178,10 @@ export async function updateChallengeProgress(userId: string, taskData: any) {
     });
 
     for (const userChallenge of userChallenges) {
-      const requirements = userChallenge.challenge.requirements as any;
+      const requirements = userChallenge.challenge.requirements as Record<string, unknown>;
       let shouldUpdate = false;
       let newProgress = userChallenge.progress;
-      let newProgressData = { ...userChallenge.progressData as any };
+      const newProgressData = { ...(userChallenge.progressData as Record<string, unknown>) };
 
       switch (requirements.type) {
         case 'daily':
@@ -257,7 +260,7 @@ export async function updateChallengeProgress(userId: string, taskData: any) {
           where: { id: userChallenge.id },
           data: {
             progress: newProgress,
-            progressData: newProgressData
+            progressData: newProgressData as Prisma.InputJsonValue
           }
         });
 

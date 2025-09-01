@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     console.log('Subscription:', subscription);
 
     // Enviar notificación de bienvenida
-    await sendWelcomeNotification(subscription);
+    await sendWelcomeNotification();
 
     return NextResponse.json({ 
       success: true, 
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
   }
 }
 
-async function sendWelcomeNotification(subscription: any) {
+async function sendWelcomeNotification() {
   const notificationPayload = {
     title: '🎮 ¡Bienvenido a Gamizky!',
     body: '¡Notificaciones activadas! Te recordaremos completar tus tareas diarias.',
