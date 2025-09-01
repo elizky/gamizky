@@ -140,9 +140,7 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
 
       if (result.success && result.data) {
         setTasks((prev) =>
-          prev.map((task) =>
-            task.id === editingTask.id ? (result.data as PrismaTask) : task
-          )
+          prev.map((task) => (task.id === editingTask.id ? (result.data as PrismaTask) : task))
         );
         setShowEditTaskModal(false);
         setEditingTask(null);
@@ -218,20 +216,30 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
             <div className='grid grid-cols-3 gap-6'>
               <div className='text-center'>
                 <div className='text-4xl font-number font-black text-blue-600'>{stats.total}</div>
-                <Badge variant='outline' className='mt-1 font-display'>Total</Badge>
+                <Badge variant='outline' className='mt-1 font-display'>
+                  Total
+                </Badge>
               </div>
               <div className='text-center'>
-                <div className='text-4xl font-number font-black text-green-600'>{stats.completed}</div>
-                <Badge variant='outline' className='mt-1 font-display'>Completadas</Badge>
+                <div className='text-4xl font-number font-black text-green-600'>
+                  {stats.completed}
+                </div>
+                <Badge variant='outline' className='mt-1 font-display'>
+                  Completadas
+                </Badge>
               </div>
               <div className='text-center'>
-                <div className='text-4xl font-number font-black text-orange-600'>{stats.pending}</div>
-                <Badge variant='outline' className='mt-1 font-display'>Pendientes</Badge>
+                <div className='text-4xl font-number font-black text-orange-600'>
+                  {stats.pending}
+                </div>
+                <Badge variant='outline' className='mt-1 font-display'>
+                  Pendientes
+                </Badge>
               </div>
             </div>
             <div className='flex flex-col gap-2'>
-              <Progress 
-                value={stats.total > 0 ? (stats.completed / stats.total) * 100 : 0} 
+              <Progress
+                value={stats.total > 0 ? (stats.completed / stats.total) * 100 : 0}
                 className='w-32'
               />
               <Button
@@ -249,14 +257,14 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
         <div className='bg-white rounded-2xl shadow-lg p-6 mb-6'>
           <div className='flex flex-col lg:flex-row gap-4'>
             <div className='flex-1'>
-                          <Input
-              variant='neo'
-              type='text'
-              placeholder='Buscar tareas...'
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className='w-full'
-            />
+              <Input
+                variant='neo'
+                type='text'
+                placeholder='Buscar tareas...'
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className='w-full'
+              />
             </div>
             <Tabs value={filter} onValueChange={(value) => setFilter(value as typeof filter)}>
               <TabsList className='grid w-full grid-cols-3'>
@@ -322,15 +330,16 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                   </div>
                   <div className='flex items-center gap-2 mt-3'>
                     <Badge variant='outline' className='gap-1'>
-                      <span>{task.category.icon}</span>
+                      {task.category.icon}
+                      {' - '}
                       {task.category.name}
                     </Badge>
-                    <Badge 
+                    <Badge
                       variant={
-                        task.difficulty === 'easy' 
-                          ? 'secondary' 
-                          : task.difficulty === 'medium' 
-                          ? 'default' 
+                        task.difficulty === 'easy'
+                          ? 'secondary'
+                          : task.difficulty === 'medium'
+                          ? 'default'
                           : 'destructive'
                       }
                     >
@@ -338,19 +347,18 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                         ? '🟢'
                         : task.difficulty === 'medium'
                         ? '🟡'
-                        : '🔴'}{' '}
+                        : '🔴'}
+                      {' - '}
                       {task.difficulty}
                     </Badge>
-                    <Badge variant='outline'>
-                      📅 {task.recurringType}
-                    </Badge>
+                    <Badge variant='outline'>📅 - {task.recurringType}</Badge>
                   </div>
                 </div>
-                <div className='text-right'>
-                  <div className='text-sm font-number font-bold text-blue-600'>+{task.coinReward} 🪙</div>
-                  <div className='text-xs font-number font-bold text-gray-500'>
+                <div className='flex flex-col gap-1'>
+                  <Badge variant='reward-coin'>+{task.coinReward} 🪙</Badge>
+                  <Badge variant='reward-xp'>
                     +{task.skillRewards[task.category.primarySkill]} XP
-                  </div>
+                  </Badge>
                   <div className='flex gap-1 mt-3'>
                     <Button
                       variant='outline'

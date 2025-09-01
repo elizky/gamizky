@@ -1,4 +1,4 @@
-# 🎮 GAMIZKY - Plataforma de Gamificación Completa
+# 🎮 GAMIZKY - Plataforma de Productividad Gamificada
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-blue)](https://react.dev/)
@@ -7,318 +7,267 @@
 [![Prisma](https://img.shields.io/badge/Prisma-6.15.0-blue)](https://www.prisma.io/)
 [![NextAuth.js](https://img.shields.io/badge/NextAuth.js-5.0-blue)](https://next-auth.js.org/)
 
-> **GAMIZKY** es una plataforma de gamificación moderna y completa que transforma tareas cotidianas en experiencias divertidas y motivadoras. Con un sistema robusto de XP, monedas, niveles, challenges, logros y recompensas, los usuarios pueden mantener su motivación y productividad de manera sostenible.
+> **GAMIZKY** es una plataforma de productividad gamificada con diseño **neo-brutalist**, enfocada en el tracking eficiente de tareas con elementos de gamificación básicos. Minimalista, funcional y visualmente impactante.
 
 ## ✨ **Características Principales**
 
-### 🎯 **Sistema de Tareas Inteligente**
-- **Categorización por habilidades** (Físico, Sabiduría, Mental, Social, Creatividad, Disciplina)
-- **Sistema de puntos dinámico** basado en dificultad y categoría
+### 📝 **Sistema de Tareas CRUD Completo**
+- **Crear, leer, actualizar y eliminar** tareas
+- **Categorización por habilidades** (Físico, Sabiduría, Mental, Social, Creatividad)
+- **Sistema de dificultad** (Fácil, Medio, Difícil) con colores semánticos
+- **Recompensas automáticas** (XP + Monedas) por completar tareas
 - **Tareas recurrentes** (diarias, semanales, mensuales)
-- **Progreso visual** con barras de completado
-- **Historial completo** de actividades
 
-### 🏆 **Sistema de Challenges Avanzado**
-- **5 tipos de challenges:**
-  - 📅 **Daily** - Desafíos diarios con objetivos específicos
-  - 📆 **Weekly** - Retos semanales más complejos
-  - 🎯 **Skill** - Enfoque en habilidades específicas
-  - 🌈 **Diversity** - Variedad de categorías de tareas
-  - ⏰ **Temporal** - Desafíos con límites de tiempo
-- **Dificultades:** Easy, Medium, Hard, Epic
-- **Rarezas:** Common, Rare, Epic, Legendary
-- **Progreso automático** basado en completación de tareas
-- **Recompensas personalizadas** (XP + Monedas)
+### 🎯 **Gamificación Básica Efectiva**
+- **Sistema de XP y niveles** progresivo
+- **Monedas virtuales** como recompensa
+- **Racha de días consecutivos** para mantener consistencia
+- **Avatares y personajes** desbloqueables
+- **Sistema de habilidades** con progreso individual
 
-### 🛍️ **Tienda de Recompensas Mejorada**
-- **4 categorías principales:**
-  - 🎁 **Internas** - Boosters, protecciones, personalizaciones
-  - 🌍 **Externas** - Recompensas del mundo real
-  - 🎨 **Cosméticas** - Temas, marcos, insignias
-  - 👤 **Personajes** - Avatares desbloqueables
-- **Sistema de ofertas especiales:**
-  - ⚡ **Flash Sales** - Descuentos por tiempo limitado
-  - 🎯 **Daily Deals** - Ofertas diarias especiales
-  - 📦 **Bundles** - Packs con descuentos especiales
-  - 👑 **Loyalty Rewards** - Beneficios por fidelidad
-- **Sistema de lealtad** con 4 tiers (Bronze, Silver, Gold, Platinum)
-- **Descuentos automáticos** hasta 15% por lealtad
-- **Recomendaciones personalizadas** basadas en nivel y actividad
+### 📊 **Dashboard de Estadísticas**
+- **Resumen de actividad** (tareas completadas, pendientes, racha)
+- **Progreso por habilidades** con niveles individuales
+- **Actividad temporal** con gráficos de los últimos 30 días
+- **Métricas visuales** claras y comprensibles
 
-### 🏅 **Sistema de Achievements Automático**
-- **20+ logros predefinidos** con detección automática
-- **Categorías de logros:**
-  - 🎯 **Nivel** - Alcanzar niveles específicos
-  - 🔥 **Racha** - Mantener consistencia
-  - 📊 **Estadísticas** - Completar metas numéricas
-  - 🌟 **Especiales** - Logros únicos y raros
-- **Desbloqueo automático** basado en acciones del usuario
-- **Recompensas especiales** por logros desbloqueados
+### 🎨 **Diseño Neo-Brutalist**
+- **Tipografía impactante** con Syne (títulos/números) e Inter (texto)
+- **Colores vibrantes** con máximo contraste
+- **Bordes negros gruesos** y sombras 3D
+- **Efectos hover** con transformaciones
+- **Componentes reutilizables** con variantes específicas
 
-### 🔔 **Sistema de Notificaciones Push**
-- **4 tipos de notificaciones:**
-  - 📝 **Recordatorios de tareas** - "¡Hora de ser productivo!"
-  - 🏅 **Logros desbloqueados** - "¡Nuevo achievement!"
-  - 🏆 **Challenges disponibles** - "¡Nuevo desafío te espera!"
-  - 🔥 **Recordatorios de racha** - "¡Mantén tu racha!"
-- **Acciones inteligentes** en notificaciones
-- **Navegación directa** a secciones relevantes
-- **Permisos inteligentes** con UI intuitiva
+## 🏗️ **Arquitectura Técnica**
 
-### 📊 **Dashboard de Estadísticas Avanzado**
-- **3 pestañas principales:**
-  - 📈 **Overview** - Resumen general del progreso
-  - 🎯 **Skills** - Niveles y progreso por habilidad
-  - 📅 **Activity** - Actividad diaria y tendencias
-- **Gráficos visuales:**
-  - 🟢 **Circular** - Progreso de nivel y XP
-  - 📊 **Barras** - Comparación de habilidades
-  - 📈 **Líneas** - Actividad temporal
-- **Métricas detalladas:**
-  - XP total y por habilidad
-  - Monedas ganadas y gastadas
-  - Racha actual y máxima
-  - Tareas completadas por período
+### **Frontend Moderno**
+- **Next.js 15** con App Router y Server Components
+- **React 19** con hooks optimizados
+- **TypeScript** con tipado estricto
+- **Tailwind CSS** con configuración personalizada
+- **Shadcn UI** con variantes neo-brutalist
 
-### 🎨 **Interfaz de Usuario Moderna**
-- **Header mejorado** con gradientes y estadísticas prominentes
-- **Diseño responsive** optimizado para móvil y desktop
-- **Navegación intuitiva** con acceso rápido a funciones
-- **PWA completa** instalable y funcional offline
-- **Service Worker** con caché inteligente
+### **Backend Robusto**
+- **Next.js API Routes** para operaciones CRUD
+- **Prisma ORM** con modelos optimizados
+- **NextAuth.js** para autenticación Google OAuth
+- **Server Actions** para mutaciones de datos
 
-## 🚀 **Tecnologías Utilizadas**
+### **Base de Datos Simplificada**
+```prisma
+User {
+  // Info básica + gamificación
+  level, totalXP, coins, streak, avatar
+  characters, skills, tasks
+}
 
-### **Frontend**
-- **Next.js 15** - Framework React con App Router
-- **React 19** - Biblioteca de interfaz de usuario
-- **TypeScript 5** - Tipado estático y autocompletado
-- **Tailwind CSS 4** - Framework CSS utility-first
-- **Chart.js** - Gráficos interactivos y responsivos
+Task {
+  // CRUD completo
+  title, description, completed
+  coinReward, skillRewards
+  category, difficulty, recurring
+}
 
-### **Backend & Base de Datos**
-- **Next.js API Routes** - APIs RESTful integradas
-- **Prisma ORM 6** - Cliente de base de datos type-safe
-- **PostgreSQL (Neon)** - Base de datos relacional en la nube
-- **NextAuth.js 5** - Autenticación con Google OAuth
+Character & UserSkill {
+  // Sistema de personajes y habilidades
+}
+```
 
-### **Características Avanzadas**
-- **PWA (Progressive Web App)** - Instalable y offline
-- **Service Worker** - Caché y notificaciones push
-- **Server Actions** - Mutaciones de datos del lado del servidor
-- **Middleware** - Autenticación y protección de rutas
+## 🎨 **Sistema de Diseño Neo-Brutalist**
 
-## 📋 **Instalación y Configuración**
+### **Componentes UI Optimizados**
+- **Badge System**: Variantes para recompensas y dificultad
+- **Button Variants**: Neo, neo-primary, neo-success, neo-danger
+- **Input/Select**: Variantes neo con bordes y sombras
+- **Card System**: NeoCard con variantes coloridas
+- **Modal System**: NeoDialogContent con máximo contraste
 
-### **Prerrequisitos**
-- Node.js 18+ 
-- PostgreSQL (recomendado Neon para desarrollo)
-- Cuenta de Google para OAuth
+### **Responsive Design**
+- **Mobile First**: Grid 1 columna, navegación en dropdown
+- **Tablet**: Grid 2 columnas para mejor aprovechamiento
+- **Desktop**: Grid 3+ columnas, layout horizontal optimizado
+- **Breakpoints**: sm:, md:, lg: para transiciones suaves
 
-### **1. Clonar el repositorio**
+### **Tipografía Consistente**
+- **Títulos**: `font-display` (Syne) con `font-black`
+- **Números**: `font-number` (Syne) con `font-black`
+- **Texto**: `font-sans` (Inter) con pesos variables
+- **Labels**: `font-display` con `font-bold`
+
+## 🚀 **Instalación y Desarrollo**
+
+### **Instalación Rápida**
 ```bash
-git clone https://github.com/tu-usuario/gamizky.git
+# Clonar repositorio
+git clone https://github.com/izky/gamizky.git
 cd gamizky
-```
 
-### **2. Instalar dependencias**
-```bash
+# Instalar dependencias
 npm install
-```
 
-### **3. Configurar variables de entorno**
-```bash
+# Configurar entorno
 cp .env.example .env.local
-```
+# Editar .env.local con tus credenciales
 
-Editar `.env.local` con tus credenciales:
-```env
-# Base de datos
-DATABASE_URL="postgresql://usuario:password@host:puerto/database"
-
-# NextAuth.js
-NEXTAUTH_SECRET="tu-secret-aqui"
-NEXTAUTH_URL="http://localhost:3000"
-
-# Google OAuth
-GOOGLE_CLIENT_ID="tu-google-client-id"
-GOOGLE_CLIENT_SECRET="tu-google-client-secret"
-```
-
-### **4. Configurar base de datos**
-```bash
-# Generar cliente Prisma
+# Setup base de datos
 npx prisma generate
-
-# Ejecutar migraciones
 npx prisma db push
+npm run seed
 
-# Poblar con datos iniciales
-npm run seed:challenges
-npm run seed:shop
-npm run seed:achievements
-```
-
-### **5. Ejecutar en desarrollo**
-```bash
+# Ejecutar desarrollo
 npm run dev
 ```
 
-La aplicación estará disponible en `http://localhost:3000`
-
-## 🎯 **Scripts Disponibles**
-
-```bash
-# Desarrollo
-npm run dev          # Servidor de desarrollo
-npm run build        # Build de producción
-npm run start        # Servidor de producción
-npm run lint         # Verificar linting
-
-# Base de datos
-npm run db:push      # Sincronizar schema
-npm run db:studio    # Abrir Prisma Studio
-npm run db:seed      # Poblar base de datos
-
-# Datos específicos
-npm run seed:challenges    # Poblar challenges
-npm run seed:shop          # Poblar tienda
-npm run seed:achievements  # Poblar achievements
-
-# Utilidades
-npm run type-check   # Verificar tipos TypeScript
-npm run clean        # Limpiar build y cache
+### **Variables de Entorno Requeridas**
+```env
+DATABASE_URL="postgresql://..."
+NEXTAUTH_SECRET="secret-seguro"
+NEXTAUTH_URL="http://localhost:3000"
+GOOGLE_CLIENT_ID="google-oauth-id"
+GOOGLE_CLIENT_SECRET="google-oauth-secret"
 ```
 
-## 📱 **Uso de la Aplicación**
+### **Scripts de Desarrollo**
+```bash
+npm run dev          # Servidor desarrollo (puerto 3000)
+npm run build        # Build producción
+npm run start        # Servidor producción
+npm run lint         # Verificar código
+npm run seed         # Poblar datos iniciales
+```
 
-### **1. Autenticación**
-- Iniciar sesión con Google OAuth
-- Perfil automáticamente configurado
-- Nivel inicial: 1, XP: 0, Monedas: 100
+## 📱 **Funcionalidades Implementadas**
 
-### **2. Crear y Completar Tareas**
-- Agregar tareas con categorías y puntos
-- Completar tareas para ganar XP y monedas
-- Ver progreso en tiempo real
+### **✅ Core Features**
+- [x] **CRUD de Tareas** completo con modal reutilizable
+- [x] **Sistema de XP/Niveles** con progreso visual
+- [x] **Historial de actividad** con filtros y búsqueda
+- [x] **Estadísticas detalladas** con gráficos
+- [x] **Autenticación Google** con middleware de protección
 
-### **3. Participar en Challenges**
-- Explorar challenges disponibles
-- Unirse a desafíos interesantes
-- Completar objetivos para recompensas
+### **✅ UI/UX Optimizada**
+- [x] **Diseño neo-brutalist** consistente
+- [x] **Navegación centralizada** en dropdown hamburger
+- [x] **Grid layouts** optimizados para todos los breakpoints
+- [x] **Sistema de badges** reutilizable
+- [x] **PWA completa** con Service Worker
 
-### **4. Comprar en la Tienda**
-- Explorar recompensas por categoría
-- Aprovechar ofertas especiales
-- Desbloquear personajes y cosméticos
+### **✅ Performance**
+- [x] **Server Components** para mejor rendimiento
+- [x] **Dynamic rendering** sin cache issues
+- [x] **Optimización de imports** y código limpio
+- [x] **Build sin errores** listo para producción
 
-### **5. Activar Notificaciones**
-- Permitir notificaciones push
-- Recibir recordatorios automáticos
-- Mantener motivación constante
+## 🔄 **Arquitectura de Componentes**
 
-## 🔄 **Changelog Detallado**
+### **Layout System**
+```
+DashboardLayout
+├── NavBar (hamburger + user dropdown)
+└── Main Content (responsive padding)
+```
 
-### **v2.0.0 - Sistema Completo de Gamificación** *(Actual)*
-#### ✨ **Nuevas Funcionalidades**
-- 🏆 **Sistema de Challenges** completamente implementado
-- 🛍️ **Tienda de recompensas** con ofertas y lealtad
-- 🔔 **Notificaciones push** inteligentes
-- 🏅 **Sistema de achievements** automático
-- 📊 **Dashboard de estadísticas** con gráficos visuales
-- 🎨 **Header mejorado** con gradientes y acceso rápido
+### **Page Components**
+```
+Home
+├── Header (avatar + stats + progress)
+├── TasksList (grid 2x2 con badges)
+└── StatsCard (grid 2x3 responsive)
 
-#### 🔧 **Mejoras Técnicas**
-- **Service Worker** actualizado con nuevas funcionalidades
-- **APIs robustas** para todas las nuevas características
-- **Tipos TypeScript** completamente definidos
-- **Base de datos** poblada con +25 recompensas
-- **Build optimizado** sin errores de linting
+Tasks
+├── TasksClient (CRUD completo)
+├── AddTaskModal (neo-brutalist)
+└── Filters + Search
+```
 
-#### 📱 **Experiencia de Usuario**
-- **Navegación mejorada** entre secciones
-- **Interfaz responsive** optimizada
-- **PWA completa** instalable
-- **Caché inteligente** para mejor rendimiento
+### **Reusable UI**
+```
+Badge Variants:
+├── reward-coin (amarillo)
+├── reward-xp (azul)
+├── difficulty-easy (verde)
+├── difficulty-medium (amarillo)
+└── difficulty-hard (rojo)
+```
 
-### **v1.0.0 - Base del Sistema**
-#### ✨ **Funcionalidades Base**
-- 🔐 **Autenticación** con Google OAuth
-- 📝 **Sistema de tareas** básico
-- 🎯 **Categorización** por habilidades
-- 📊 **Estadísticas** básicas del usuario
-- 👤 **Perfil de usuario** con progreso
+## 🚀 **Deploy a Producción**
 
-## 📋 **TODO List - Próximas Funcionalidades**
+### **Vercel (Recomendado)**
+```bash
+# Build local
+npm run build
 
-### **🚀 Alta Prioridad**
-- [ ] **Sistema de notificaciones push real** con web-push
-- [ ] **Mejoras en el sistema de recompensas** con más variedad
-- [ ] **Sistema de amigos** y competencia social
-- [ ] **Challenges en tiempo real** con otros usuarios
+# Deploy a Vercel
+npx vercel --prod
+```
 
-### **🎨 Intermedia Prioridad**
-- [ ] **Modo oscuro** para la aplicación
-- [ ] **Temas personalizables** por usuario
-- [ ] **Animaciones** y transiciones mejoradas
-- [ ] **Sonidos** y efectos de audio
+### **Docker**
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "start"]
+```
 
-### **🔮 Baja Prioridad**
-- [ ] **Sistema de clanes** y grupos
-- [ ] **Eventos especiales** y temporadas
-- [ **Integración con APIs externas** (calendario, fitness)
-- [ ] **Sistema de rankings** globales
-- [ ] **Exportación de datos** y reportes
+### **Variables de Entorno Producción**
+- `DATABASE_URL`: PostgreSQL connection string
+- `NEXTAUTH_SECRET`: Secret seguro para producción
+- `NEXTAUTH_URL`: URL de tu dominio
+- `GOOGLE_CLIENT_ID`: OAuth ID para tu dominio
+- `GOOGLE_CLIENT_SECRET`: OAuth secret
 
-### **🛠️ Mejoras Técnicas**
-- [ ] **Tests unitarios** y de integración
-- [ ] **CI/CD pipeline** automatizado
-- [ ] **Monitoreo** y analytics
-- [ ] **Optimización de rendimiento** avanzada
-- [ ] **Internacionalización** (i18n)
+## 📈 **Performance Metrics**
 
-## 🤝 **Contribuir**
+- **First Load JS**: ~101 kB (optimizado)
+- **Build Time**: ~3 segundos
+- **Lighthouse Score**: 90+ (Performance, Accessibility, Best Practices)
+- **Bundle Size**: Optimizado con tree-shaking
 
-### **Reportar Bugs**
-1. Crear un issue con descripción detallada
-2. Incluir pasos para reproducir
-3. Especificar entorno y versión
+## 🛠️ **Desarrollo y Mantenimiento**
 
-### **Solicitar Funcionalidades**
-1. Crear un issue con etiqueta "enhancement"
-2. Describir la funcionalidad deseada
-3. Explicar el caso de uso
+### **Estructura del Proyecto**
+```
+├── app/                    # Next.js App Router
+├── components/             # Componentes reutilizables
+│   ├── dashboard/          # Componentes del dashboard
+│   ├── layout/             # Layout components
+│   ├── modals/             # Modales reutilizables
+│   ├── pages/              # Page-specific components
+│   └── ui/                 # Shadcn UI components
+├── lib/                    # Utilidades y tipos
+├── prisma/                 # Schema y seeds
+├── actions/                # Server Actions
+└── public/                 # Assets estáticos
+```
 
-### **Contribuir Código**
-1. Fork del repositorio
-2. Crear rama para tu feature
-3. Commit con mensajes descriptivos
-4. Pull request con descripción detallada
+### **Convenciones de Código**
+- **TypeScript estricto** con interfaces tipadas
+- **Componentes funcionales** con hooks
+- **Server Components** por defecto, Client Components marcados
+- **Tailwind classes** organizadas por función
+- **Imports absolutos** con alias @/
 
-## 📄 **Licencia**
+## 🎯 **Roadmap v3.0**
 
-Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
-
-## 🙏 **Agradecimientos**
-
-- **Next.js Team** por el increíble framework
-- **Prisma Team** por el ORM type-safe
-- **Tailwind CSS** por el sistema de utilidades
-- **Comunidad React** por el ecosistema robusto
-
-## 📞 **Contacto**
-
-- **Desarrollador:** [Tu Nombre]
-- **Email:** [tu-email@ejemplo.com]
-- **GitHub:** [@tu-usuario]
-- **Proyecto:** [https://github.com/tu-usuario/gamizky]
+### **Próximas Mejoras**
+- [ ] **Modo oscuro** con toggle
+- [ ] **Notificaciones push** reales
+- [ ] **Exportación de datos** 
+- [ ] **Sistema de backup**
+- [ ] **Métricas avanzadas**
 
 ---
 
 <div align="center">
 
-**⭐ ¡Dale una estrella al proyecto si te gusta! ⭐**
+**🎮 GAMIZKY - Productividad Gamificada con Estilo Neo-Brutalist**
 
-*Transformando la productividad en diversión desde 2024*
+*Desarrollado por Nicolás González (Izky)*
+
+**⭐ ¡Dale una estrella si te gusta el proyecto! ⭐**
 
 </div>
