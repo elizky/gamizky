@@ -1,207 +1,213 @@
+'use client';
+
 import Link from 'next/link';
+import { Button } from '../ui/button';
 
 export default function LandingPage() {
   return (
-    <div className='min-h-screen bg-white'>
-      {/* Header */}
-      <header className='relative z-10 border-b-4 border-black'>
-        <nav className='max-w-7xl mx-auto px-6 py-6'>
+    <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100'>
+      {/* Header Simple */}
+      <header className='bg-white border-b-2 border-black shadow-[0_2px_0px_0px_rgba(0,0,0,1)] sticky top-0 z-50'>
+        <nav className='max-w-6xl mx-auto px-4 py-4'>
           <div className='flex items-center justify-between'>
-            <div className='flex items-center gap-4'>
-              <div className='w-12 h-12 bg-orange-500 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'></div>
-              <h1 className='text-3xl font-black text-black tracking-tight'>GAMIZKY</h1>
+            <div className='flex items-center space-x-3'>
+              <div className='w-8 h-8 bg-orange-500 border-2 border-black flex items-center justify-center'>
+                <span className='text-white font-black text-sm'>G</span>
+              </div>
+              <h1 className='text-xl font-display font-black text-gray-800'>GAMIZKY</h1>
             </div>
-            <div className='flex items-center gap-4'>
-              <Link
-                href='/login'
-                className='px-8 py-3 bg-black text-white font-bold border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200'
-              >
-                INICIAR
-              </Link>
-            </div>
+            <Link href='/login'>
+              <Button variant='neo-primary' className='font-display'>
+                ENTRAR
+              </Button>
+            </Link>
           </div>
         </nav>
       </header>
 
-      {/* Hero Section */}
-      <main className='relative z-10'>
-        <div className='max-w-7xl mx-auto px-6 py-20'>
-          <div className='text-center'>
-            {/* Hero Title */}
-            <h1 className='text-7xl md:text-8xl font-black text-black mb-8 leading-none tracking-tight'>
-              TRANSFORMA
-              <br />
-              <span className='text-orange-500'>TU VIDA</span>
-              <br />
-              CON XP
-            </h1>
-
-            {/* Hero Description */}
-            <p className='text-2xl md:text-3xl text-gray-700 mb-12 max-w-4xl mx-auto leading-tight font-medium'>
-              Convierte tareas aburridas en una aventura épica.
-              <br />
-              <span className='font-bold'>Gana XP • Sube de Nivel • Desbloquea Logros</span>
-            </p>
-
-            {/* CTA Buttons */}
-            <div className='flex flex-col sm:flex-row gap-6 justify-center items-center mb-20'>
-              <Link
-                href='/login'
-                className='px-12 py-6 bg-orange-500 text-black font-black text-xl border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-2 hover:-translate-y-2 transition-all duration-200'
-              >
-                🎯 COMENZAR AVENTURA
-              </Link>
-              <Link
-                href='/what-is'
-                className='px-12 py-6 bg-white text-black font-black text-xl border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-2 hover:-translate-y-2 transition-all duration-200'
-              >
-                📖 ¿QUÉ ES GAMIZKY?
-              </Link>
+      <main className='max-w-4xl mx-auto px-4 py-8 md:py-16'>
+        {/* Hero Section - Mobile First */}
+        <div className='text-center mb-16'>
+          {/* Avatar Hero */}
+          <div className='mb-8'>
+            <div className='w-32 h-32 md:w-40 md:h-40 bg-yellow-400 border-4 border-black mx-auto flex items-center justify-center relative shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]'>
+              <span className='text-6xl md:text-7xl'>🎮</span>
+              <div className='absolute -bottom-2 -right-2 w-8 h-8 md:w-10 md:h-10 bg-red-500 border-2 border-black flex items-center justify-center'>
+                <span className='text-white font-black text-sm md:text-base'>1</span>
+              </div>
             </div>
+          </div>
+
+          {/* Hero Title */}
+          <h1 className='text-4xl md:text-6xl lg:text-7xl font-display font-black text-gray-800 mb-6 leading-tight'>
+            GAMIFICA
+            <br />
+            TU <span className='text-orange-500'>VIDA</span>
+          </h1>
+
+          {/* Hero Description - Minimalista */}
+          <p className='text-lg md:text-xl text-gray-600 mb-8 font-sans'>
+            Convierte tareas en XP. Simple y efectivo.
+          </p>
+
+          {/* CTA Principal */}
+          <Link href='/login'>
+            <Button 
+              variant='neo'
+              className='text-lg md:text-xl px-8 md:px-12 py-4 md:py-6 font-display mb-4'
+            >
+              🚀 EMPEZAR GRATIS
+            </Button>
+          </Link>
+          <p className='text-sm text-gray-500 font-sans'>
+            Solo necesitas una cuenta de Google
+          </p>
+        </div>
+
+        {/* Details Section - Bullets */}
+        <div className='mb-16'>
+          <div className='bg-white border-2 border-black p-6 md:p-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] max-w-2xl mx-auto'>
+            <h2 className='text-2xl font-display font-black text-gray-800 mb-6 text-center'>
+              ¿Qué Puedes Hacer?
+            </h2>
+            
+            <div className='space-y-4 text-left'>
+              <div className='flex items-start gap-3'>
+                <div className='w-6 h-6 bg-orange-500 border-2 border-black flex items-center justify-center flex-shrink-0 mt-0.5'>
+                  <span className='text-white font-black text-xs'>✓</span>
+                </div>
+                <p className='text-gray-700 font-sans'>
+                  <strong>Crear tareas</strong> de cualquier tipo: ejercicio, trabajo, hobbies
+                </p>
+              </div>
+              
+              <div className='flex items-start gap-3'>
+                <div className='w-6 h-6 bg-green-500 border-2 border-black flex items-center justify-center flex-shrink-0 mt-0.5'>
+                  <span className='text-white font-black text-xs'>✓</span>
+                </div>
+                <p className='text-gray-700 font-sans'>
+                  <strong>Ganar XP</strong> al completar tareas y subir de nivel automáticamente
+                </p>
+              </div>
+              
+              <div className='flex items-start gap-3'>
+                <div className='w-6 h-6 bg-blue-500 border-2 border-black flex items-center justify-center flex-shrink-0 mt-0.5'>
+                  <span className='text-white font-black text-xs'>✓</span>
+                </div>
+                <p className='text-gray-700 font-sans'>
+                  <strong>Mantener rachas</strong> completando tareas consistentemente
+                </p>
+              </div>
+              
+              <div className='flex items-start gap-3'>
+                <div className='w-6 h-6 bg-purple-500 border-2 border-black flex items-center justify-center flex-shrink-0 mt-0.5'>
+                  <span className='text-white font-black text-xs'>✓</span>
+                </div>
+                <p className='text-gray-700 font-sans'>
+                  <strong>Ver estadísticas</strong> de tu progreso y productividad
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* How It Works - Simplified */}
+        <div className='mb-16'>
+          <h2 className='text-2xl md:text-3xl font-display font-black text-gray-800 text-center mb-8'>
+            ¿Cómo Funciona?
+          </h2>
+          
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+            {/* Step 1 */}
+            <div className='bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-center'>
+              <div className='w-12 h-12 bg-orange-500 border-2 border-black mx-auto mb-4 flex items-center justify-center'>
+                <span className='text-white font-black'>1</span>
+              </div>
+              <h3 className='font-display font-bold text-gray-800 mb-2'>Crea Tareas</h3>
+              <p className='text-sm text-gray-600 font-sans'>
+                Ejercicio, lectura, trabajo...
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className='bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-center'>
+              <div className='w-12 h-12 bg-green-500 border-2 border-black mx-auto mb-4 flex items-center justify-center'>
+                <span className='text-white font-black'>2</span>
+              </div>
+              <h3 className='font-display font-bold text-gray-800 mb-2'>Complétalas</h3>
+              <p className='text-sm text-gray-600 font-sans'>
+                Marca como terminadas
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className='bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-center'>
+              <div className='w-12 h-12 bg-blue-500 border-2 border-black mx-auto mb-4 flex items-center justify-center'>
+                <span className='text-white font-black'>3</span>
+              </div>
+              <h3 className='font-display font-bold text-gray-800 mb-2'>Gana XP</h3>
+              <p className='text-sm text-gray-600 font-sans'>
+                Sube de nivel automáticamente
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Features Grid */}
+        <div className='mb-16'>
+          <h2 className='text-2xl md:text-3xl font-display font-black text-gray-800 text-center mb-8'>
+            Características
+          </h2>
+          
+          <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+            <div className='bg-blue-400 border-2 border-black p-4 text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'>
+              <div className='text-2xl mb-2'>📝</div>
+              <div className='text-sm font-display font-bold text-white'>TAREAS</div>
+            </div>
+            <div className='bg-green-400 border-2 border-black p-4 text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'>
+              <div className='text-2xl mb-2'>⭐</div>
+              <div className='text-sm font-display font-bold text-white'>NIVELES</div>
+            </div>
+            <div className='bg-purple-400 border-2 border-black p-4 text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'>
+              <div className='text-2xl mb-2'>🔥</div>
+              <div className='text-sm font-display font-bold text-white'>RACHAS</div>
+            </div>
+            <div className='bg-red-400 border-2 border-black p-4 text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'>
+              <div className='text-2xl mb-2'>📊</div>
+              <div className='text-sm font-display font-bold text-white'>STATS</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Final CTA */}
+        <div className='text-center'>
+          <div className='bg-white border-2 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]'>
+            <h2 className='text-2xl md:text-3xl font-display font-black text-gray-800 mb-4'>
+              ¿Listo para Empezar?
+            </h2>
+            <p className='text-gray-600 mb-6 font-sans'>
+              Únete y transforma tu productividad en una aventura
+            </p>
+            <Link href='/login'>
+              <Button 
+                variant='neo-success'
+                className='text-lg px-8 py-4 font-display'
+              >
+                ✨ CREAR CUENTA GRATIS
+              </Button>
+            </Link>
           </div>
         </div>
       </main>
 
-      {/* Features Section */}
-      <section className='py-20 bg-gray-50 border-t-4 border-black'>
-        <div className='max-w-7xl mx-auto px-6'>
-          <h2 className='text-5xl font-black text-black text-center mb-16 tracking-tight'>
-            CARACTERÍSTICAS ÉPICAS
-          </h2>
-
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-            {/* Feature 1: XP System */}
-            <div className='bg-blue-500 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8'>
-              <div className='w-20 h-20 bg-yellow-400 border-4 border-black mb-6 mx-auto'></div>
-              <h3 className='text-2xl font-black text-white mb-4'>SISTEMA XP</h3>
-              <p className='text-white text-lg leading-relaxed'>
-                Gana experiencia por cada tarea completada.
-                <span className='font-bold'>¡Sube de nivel constantemente!</span>
-              </p>
-            </div>
-
-            {/* Feature 2: Achievements */}
-            <div className='bg-green-500 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8'>
-              <div className='w-20 h-20 bg-yellow-400 border-4 border-black mb-6 mx-auto'></div>
-              <h3 className='text-2xl font-black text-white mb-4'>LOGROS</h3>
-              <p className='text-white text-lg leading-relaxed'>
-                Desbloquea logros especiales y gana monedas para
-                <span className='font-bold'>personalizar tu experiencia</span>
-              </p>
-            </div>
-
-            {/* Feature 3: Progress Tracking */}
-            <div className='bg-purple-500 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8'>
-              <div className='w-20 h-20 bg-yellow-400 border-4 border-black mb-6 mx-auto'></div>
-              <h3 className='text-2xl font-black text-white mb-4'>PROGRESO</h3>
-              <p className='text-white text-lg leading-relaxed'>
-                Visualiza tu progreso con gráficos y estadísticas
-                <span className='font-bold'>detalladas</span>
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className='py-20 bg-white'>
-        <div className='max-w-7xl mx-auto px-6'>
-          <h2 className='text-5xl font-black text-black text-center mb-16 tracking-tight'>
-            ¿CÓMO FUNCIONA?
-          </h2>
-
-          <div className='grid grid-cols-1 md:grid-cols-4 gap-6'>
-            {/* Step 1 */}
-            <div className='text-center'>
-              <div className='w-16 h-16 bg-red-500 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mx-auto mb-4 flex items-center justify-center'>
-                <span className='text-2xl font-black text-white'>1</span>
-              </div>
-              <h3 className='text-xl font-bold text-black mb-2'>CREA TAREAS</h3>
-              <p className='text-gray-700'>Define tus objetivos diarios</p>
-            </div>
-
-            {/* Step 2 */}
-            <div className='text-center'>
-              <div className='w-16 h-16 bg-blue-500 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mx-auto mb-4 flex items-center justify-center'>
-                <span className='text-2xl font-black text-white'>2</span>
-              </div>
-              <h3 className='text-xl font-bold text-black mb-2'>COMPLÉTALAS</h3>
-              <p className='text-gray-700'>Marca como terminadas</p>
-            </div>
-
-            {/* Step 3 */}
-            <div className='text-center'>
-              <div className='w-16 h-16 bg-green-500 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mx-auto mb-4 flex items-center justify-center'>
-                <span className='text-2xl font-black text-white'>3</span>
-              </div>
-              <h3 className='text-xl font-bold text-black mb-2'>GANA XP</h3>
-              <p className='text-gray-700'>Acumula experiencia</p>
-            </div>
-
-            {/* Step 4 */}
-            <div className='text-center'>
-              <div className='w-16 h-16 bg-purple-500 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mx-auto mb-4 flex items-center justify-center'>
-                <span className='text-2xl font-black text-white'>4</span>
-              </div>
-              <h3 className='text-xl font-bold text-black mb-2'>SUBE DE NIVEL</h3>
-              <p className='text-gray-700'>¡Desbloquea nuevas habilidades!</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className='py-20 bg-yellow-400 border-t-4 border-black'>
-        <div className='max-w-7xl mx-auto px-6'>
-          <h2 className='text-5xl font-black text-black text-center mb-16 tracking-tight'>
-            ESTADÍSTICAS IMPRESIONANTES
-          </h2>
-
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-            <div className='text-center'>
-              <div className='text-6xl font-black text-black mb-4'>10K+</div>
-              <p className='text-xl font-bold text-black'>TAREAS COMPLETADAS</p>
-            </div>
-            <div className='text-center'>
-              <div className='text-6xl font-black text-black mb-4'>500+</div>
-              <p className='text-xl font-bold text-black'>USUARIOS ACTIVOS</p>
-            </div>
-            <div className='text-center'>
-              <div className='text-6xl font-black text-black mb-4'>50+</div>
-              <p className='text-xl font-bold text-black'>LOGROS DESBLOQUEADOS</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA Section */}
-      <section className='py-20 bg-black'>
-        <div className='max-w-4xl mx-auto px-6 text-center'>
-          <h2 className='text-5xl font-black text-white mb-8 tracking-tight'>
-            ¿LISTO PARA LA AVENTURA?
-          </h2>
-          <p className='text-2xl text-gray-300 mb-12 leading-relaxed'>
-            Únete a miles de personas que ya están transformando
-            <br />
-            <span className='font-bold text-white'>sus vidas con gamificación</span>
-          </p>
-          <Link
-            href='/login'
-            className='inline-block px-16 py-8 bg-orange-500 text-black font-black text-2xl border-4 border-black shadow-[12px_12px_0px_0px_rgba(255,255,255,1)] hover:shadow-[16px_16px_0px_0px_rgba(255,255,255,1)] hover:-translate-x-2 hover:-translate-y-2 transition-all duration-200'
-          >
-            🚀 COMENZAR AHORA
+      {/* Footer Minimalista */}
+      <footer className='pt-16 flex items-center justify-center p-4'>
+        <p className='font-mono text-xs text-gray-500'>
+          creado por{' '}
+          <Link href='https://www.izky.dev/' target='_blank' className='hover:underline text-gray-700'>
+            Izky
           </Link>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className='py-12 bg-white border-t-4 border-black'>
-        <div className='max-w-7xl mx-auto px-6 text-center'>
-          <div className='w-16 h-16 bg-orange-500 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mx-auto mb-6'></div>
-          <p className='text-xl font-bold text-black'>
-            © 2024 GAMIZKY. Transforma tu vida, una tarea a la vez.
-          </p>
-        </div>
+        </p>
       </footer>
     </div>
   );

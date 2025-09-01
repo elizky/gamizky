@@ -41,19 +41,17 @@ export default function EditCompletedTasksModal({
               </div>
               <div className='flex gap-2'>
                 <Button
-                  variant="ghost"
+                  variant="neo-primary"
                   size="sm"
                   onClick={() => onToggleTask(task.id)}
-                  className='text-blue-600 hover:text-blue-700 hover:bg-blue-50'
                   title='Desmarcar como completada'
                 >
                   🔄 Desmarcar
                 </Button>
                 <Button
-                  variant="ghost"
+                  variant="neo-danger"
                   size="sm"
                   onClick={() => onRemoveTask(task.id)}
-                  className='text-red-600 hover:text-red-700 hover:bg-red-50'
                   title='Eliminar tarea'
                 >
                   🗑️ Eliminar
@@ -65,7 +63,7 @@ export default function EditCompletedTasksModal({
 
         <div className='flex justify-end pt-6 border-t mt-6'>
           <Button
-            variant="outline"
+            variant="neo-outline"
             onClick={() => onOpenChange(false)}
           >
             Cerrar

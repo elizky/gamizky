@@ -11,6 +11,11 @@ const cardVariants = cva(
         default: "rounded-lg border shadow-sm",
         neo: "border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white",
         "neo-colored": "border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+        "neo-stat-green": "bg-green-400 border-2 border-black text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
+        "neo-stat-orange": "bg-orange-400 border-2 border-black text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
+        "neo-stat-red": "bg-red-400 border-2 border-black text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
+        "neo-stat-blue": "bg-blue-400 border-2 border-black text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
+        "neo-stat-yellow": "bg-yellow-400 border-2 border-black text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
       },
     },
     defaultVariants: {

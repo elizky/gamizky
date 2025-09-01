@@ -343,20 +343,21 @@ export default function AddTaskModal({
           {/* Botones de acción */}
           <div className='flex gap-3 pt-4 border-t-2 border-gray-300'>
             <Button 
-              variant='outline' 
+              variant='neo-outline' 
               onClick={() => onOpenChange(false)} 
-              className='flex-1 border-2 border-gray-400 hover:border-gray-500 font-display font-bold'
+              className='flex-1 font-display font-bold'
             >
               ❌ Cancelar
             </Button>
             <Button
+              variant='neo-success'
               onClick={addTask}
               disabled={
                 !newTask.title.trim() ||
                 !newTask.categories.some((cat) => cat.categoryId) ||
                 isSubmitting
               }
-              className='flex-1 bg-orange-500 hover:bg-orange-600 text-white font-display font-bold border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1'
+              className='flex-1 font-display font-bold'
             >
               {isSubmitting ? '🔄 Creando...' : '✨ Crear Tarea'}
             </Button>

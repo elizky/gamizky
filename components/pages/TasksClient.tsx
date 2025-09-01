@@ -361,7 +361,7 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                   </Badge>
                   <div className='flex gap-1 mt-3'>
                     <Button
-                      variant='outline'
+                      variant='neo-outline'
                       size='sm'
                       onClick={() => openEditModal(task)}
                       className='h-8 w-8 p-0'
@@ -369,7 +369,7 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                       ✏️
                     </Button>
                     <Button
-                      variant='outline'
+                      variant='neo-danger'
                       size='sm'
                       onClick={() => removeTask(task.id)}
                       className='h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50'

@@ -21,8 +21,9 @@ export default function TasksList({ pendingTasks, onAddTaskClick, onTaskClick }:
       {/* Botón Add Tarea - Independiente y arriba */}
       <div className='mb-6'>
         <Button
+          variant='neo-primary'
           onClick={onAddTaskClick}
-          className='w-full py-4 px-6 bg-orange-500 hover:bg-orange-600 text-white font-display font-black border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all'
+          className='w-full py-4 px-6 text-white font-display font-black text-lg'
         >
           <span className='text-lg mr-2'>➕</span>
           AGREGAR NUEVA TAREA
@@ -30,7 +31,7 @@ export default function TasksList({ pendingTasks, onAddTaskClick, onTaskClick }:
       </div>
 
       {/* Grid de tareas - Responsive */}
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4'>
         {pendingTasks.map((task) => (
           <div
             key={task.id}
@@ -46,12 +47,12 @@ export default function TasksList({ pendingTasks, onAddTaskClick, onTaskClick }:
 
             <div className='flex items-center justify-between'>
               {/* Badge unificado: dificultad + categoría */}
-              <Badge 
+              <Badge
                 variant={
-                  task.difficulty === 'easy' 
-                    ? 'difficulty-easy' 
-                    : task.difficulty === 'medium' 
-                    ? 'difficulty-medium' 
+                  task.difficulty === 'easy'
+                    ? 'difficulty-easy'
+                    : task.difficulty === 'medium'
+                    ? 'difficulty-medium'
                     : 'difficulty-hard'
                 }
               >
@@ -60,10 +61,8 @@ export default function TasksList({ pendingTasks, onAddTaskClick, onTaskClick }:
 
               {/* Recompensas con Badge components */}
               <div className='flex gap-1'>
-                <Badge variant="reward-coin">
-                  +{task.coinReward} 🪙
-                </Badge>
-                <Badge variant="reward-xp">
+                <Badge variant='reward-coin'>+{task.coinReward} 🪙</Badge>
+                <Badge variant='reward-xp'>
                   +{task.skillRewards[task.category.primarySkill]} XP
                 </Badge>
               </div>

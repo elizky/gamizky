@@ -25,7 +25,7 @@ const Header = ({ user }: { user: PrismaUserWithExtras }) => {
           {/* Avatar + Stats Grid - Responsive */}
           <div className='grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 mb-6'>
             {/* Avatar - Centrado en mobile, primera columna en desktop */}
-            <div className='flex justify-center md:justify-start'>
+            <div className='flex justify-center'>
               <div className='relative'>
                 <div className='w-24 h-24 md:w-20 md:h-20 bg-yellow-300 border-4 border-black rounded-none flex items-center justify-center text-4xl md:text-3xl'>
                   {user.avatar}

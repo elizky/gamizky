@@ -17,10 +17,10 @@ export default function CompletedTasksCard({ completedTasks, onEditClick }: Comp
         <h2 className="text-2xl font-display font-black text-gray-800">Completadas Hoy</h2>
         {completedTasks.length > 0 && (
           <Button
-            variant='outline'
+            variant='neo-outline'
             size='sm'
             onClick={onEditClick}
-            className='text-blue-600 hover:text-blue-700 border-2 border-blue-300 hover:border-blue-400 font-display font-bold'
+            className='font-display font-bold'
           >
             ✏️ Editar
           </Button>
