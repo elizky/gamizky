@@ -3,6 +3,10 @@ import { redirect } from 'next/navigation';
 import { db } from '@/server/db/prisma';
 import StatsClient from '@/components/pages/StatsClient';
 
+// Forzar renderizado dinámico para evitar errores de prerender y hidratación
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 async function getUser() {
   const session = await auth();
   if (!session?.user?.email) return null;

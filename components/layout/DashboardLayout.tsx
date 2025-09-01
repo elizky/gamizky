@@ -1,11 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { formatXP, formatCoins } from '../../lib/gamification';
 import ResetLevelsButton from './ResetLevelsButton';
+import { Avatar, AvatarFallback } from '../ui/avatar';
+import { Badge } from '../ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import type { PrismaUserWithExtras } from '../../lib/types';
 
 interface DashboardLayoutProps {
@@ -16,6 +19,11 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ user, children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const navigation = [
     { name: 'Inicio', href: '/home', icon: '🏠' },
@@ -32,32 +40,37 @@ export default function DashboardLayout({ user, children }: DashboardLayoutProps
   };
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100'>
-      {/* Header móvil */}
-      <div className='lg:hidden bg-white shadow-sm border-b'>
-        <div className='flex items-center justify-between p-4'>
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className='text-gray-600 hover:text-gray-800'
-          >
-            <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M4 6h16M4 12h16M4 18h16'
-              />
-            </svg>
-          </button>
-          <div className='flex items-center gap-3'>
-            <div className='text-2xl'>{user.avatar}</div>
-            <div className='text-right'>
-              <div className='font-medium text-gray-800'>{user.name}</div>
-              <div className='text-sm text-gray-500'>Nivel {user.level}</div>
+    <TooltipProvider>
+      <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100'>
+        {/* Header móvil */}
+        <div className='lg:hidden bg-white shadow-sm border-b'>
+          <div className='flex items-center justify-between p-4'>
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className='text-gray-600 hover:text-gray-800'
+            >
+              <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M4 6h16M4 12h16M4 18h16'
+                />
+              </svg>
+            </button>
+            <div className='flex items-center gap-3'>
+              <Avatar>
+                <AvatarFallback className='text-xl'>{user.avatar}</AvatarFallback>
+              </Avatar>
+              <div className='text-right'>
+                <div className='font-medium text-gray-800'>{user.name}</div>
+                <Badge variant='secondary' className='text-xs'>
+                  Nivel {user.level}
+                </Badge>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
       <div className='flex'>
         {/* Sidebar */}
@@ -73,7 +86,7 @@ export default function DashboardLayout({ user, children }: DashboardLayoutProps
               <div className='flex items-center gap-3'>
                 <div className='text-3xl'>🎮</div>
                 <div>
-                  <h1 className='text-xl font-bold text-gray-800'>GAMIZKY</h1>
+                  <h1 className='text-xl font-display font-bold text-gray-800'>GAMIZKY</h1>
                   <p className='text-sm text-gray-500'>Gamificación Personal</p>
                 </div>
               </div>
@@ -81,14 +94,53 @@ export default function DashboardLayout({ user, children }: DashboardLayoutProps
 
             {/* Stats del usuario */}
             <div className='p-4 border-b bg-gray-50'>
-              <div className='text-center'>
-                <div className='text-4xl mb-2'>{user.avatar}</div>
-                <h3 className='font-semibold text-gray-800'>{user.name}</h3>
-                <p className='text-sm text-gray-600 mb-2'>Nivel {user.level}</p>
-                <div className='space-y-1 text-xs text-gray-500'>
-                  <div>{formatXP(user.totalXP)} XP</div>
-                  <div>{formatCoins(user.coins)} 🪙</div>
-                  <div>{user.streak} días 🔥</div>
+              <div className='text-center space-y-3'>
+                <Avatar className='h-16 w-16 mx-auto'>
+                  <AvatarFallback className='text-2xl'>{user.avatar}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className='font-semibold text-gray-800 font-display'>{user.name}</h3>
+                  <Badge variant='outline' className='mt-1 font-display'>
+                    Nivel <span className='font-number font-black'>{user.level}</span>
+                  </Badge>
+                </div>
+                <div className='grid grid-cols-1 gap-2 text-xs'>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className='p-2 bg-white rounded-lg border'>
+                        <div className='font-number font-bold text-blue-600'>
+                          {isClient ? formatXP(user.totalXP) : `${user.totalXP} XP`}
+                        </div>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Experiencia total acumulada</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className='p-2 bg-white rounded-lg border'>
+                        <div className='font-number font-bold text-yellow-600'>
+                          {isClient ? formatCoins(user.coins) : `${user.coins} 🪙`}
+                        </div>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Monedas disponibles</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className='p-2 bg-white rounded-lg border'>
+                        <div className='font-number font-bold text-orange-600'>
+                          {user.streak} días 🔥
+                        </div>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Racha de días consecutivos</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
             </div>
@@ -148,5 +200,6 @@ export default function DashboardLayout({ user, children }: DashboardLayoutProps
         </div>
       </div>
     </div>
+    </TooltipProvider>
   );
 }

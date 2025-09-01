@@ -6,6 +6,11 @@ import { useRouter } from 'next/navigation';
 import { updateTask, deleteTask, completeTask } from '../../actions';
 import type { PrismaTask, PrismaTaskCategory } from '../../lib/types';
 import { AddTaskModal } from '../modals';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
+import { Progress } from '../ui/progress';
 
 interface TasksClientProps {
   tasks: PrismaTask[];
@@ -169,12 +174,13 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
         {/* Header */}
         <div className='mb-6'>
           <Link
-            href='/'
-            className='inline-flex items-center text-blue-600 hover:text-blue-700 mb-4'
+            href='/home'
+            className='inline-flex items-center text-blue-600 hover:text-blue-700 mb-4 font-medium'
           >
             ← Volver al inicio
           </Link>
-          <h1 className='text-3xl font-bold text-gray-800'>Mis Tareas</h1>
+          <h1 className='text-4xl font-display font-bold text-gray-800'>Mis Tareas</h1>
+          <p className='text-gray-600 mt-2 font-sans'>Gestiona y completa tus tareas diarias</p>
         </div>
 
         {/* Mostrar errores y éxitos */}
@@ -209,26 +215,33 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
         {/* Stats y controles */}
         <div className='bg-white rounded-2xl shadow-lg p-6 mb-6'>
           <div className='flex flex-col lg:flex-row lg:items-center justify-between gap-4'>
-            <div className='flex gap-6'>
+            <div className='grid grid-cols-3 gap-6'>
               <div className='text-center'>
-                <div className='text-2xl font-bold text-blue-600'>{stats.total}</div>
-                <div className='text-sm text-gray-600'>Total</div>
+                <div className='text-4xl font-number font-black text-blue-600'>{stats.total}</div>
+                <Badge variant='outline' className='mt-1 font-display'>Total</Badge>
               </div>
               <div className='text-center'>
-                <div className='text-2xl font-bold text-green-600'>{stats.completed}</div>
-                <div className='text-sm text-gray-600'>Completadas</div>
+                <div className='text-4xl font-number font-black text-green-600'>{stats.completed}</div>
+                <Badge variant='outline' className='mt-1 font-display'>Completadas</Badge>
               </div>
               <div className='text-center'>
-                <div className='text-2xl font-bold text-orange-600'>{stats.pending}</div>
-                <div className='text-sm text-gray-600'>Pendientes</div>
+                <div className='text-4xl font-number font-black text-orange-600'>{stats.pending}</div>
+                <Badge variant='outline' className='mt-1 font-display'>Pendientes</Badge>
               </div>
             </div>
-            <button
-              onClick={() => setShowAddTaskModal(true)}
-              className='bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium'
-            >
-              ➕ Nueva Tarea
-            </button>
+            <div className='flex flex-col gap-2'>
+              <Progress 
+                value={stats.total > 0 ? (stats.completed / stats.total) * 100 : 0} 
+                className='w-32'
+              />
+              <Button
+                variant='neo-primary'
+                onClick={() => setShowAddTaskModal(true)}
+                className='font-display'
+              >
+                ➕ Nueva Tarea
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -236,59 +249,39 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
         <div className='bg-white rounded-2xl shadow-lg p-6 mb-6'>
           <div className='flex flex-col lg:flex-row gap-4'>
             <div className='flex-1'>
-              <input
-                type='text'
-                placeholder='Buscar tareas...'
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className='w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-              />
+                          <Input
+              variant='neo'
+              type='text'
+              placeholder='Buscar tareas...'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className='w-full'
+            />
             </div>
-            <div className='flex gap-2'>
-              <button
-                onClick={() => setFilter('all')}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  filter === 'all'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Todas
-              </button>
-              <button
-                onClick={() => setFilter('pending')}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  filter === 'pending'
-                    ? 'bg-orange-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Pendientes
-              </button>
-              <button
-                onClick={() => setFilter('completed')}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  filter === 'completed'
-                    ? 'bg-green-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Completadas
-              </button>
-            </div>
+            <Tabs value={filter} onValueChange={(value) => setFilter(value as typeof filter)}>
+              <TabsList className='grid w-full grid-cols-3'>
+                <TabsTrigger value='all'>Todas</TabsTrigger>
+                <TabsTrigger value='pending'>Pendientes</TabsTrigger>
+                <TabsTrigger value='completed'>Completadas</TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
         </div>
 
         {/* Lista de tareas */}
         <div className='bg-white rounded-2xl shadow-lg p-6'>
-          <h2 className='text-xl font-semibold text-gray-800 mb-4'>
-            {filter === 'all'
-              ? 'Todas las Tareas'
-              : filter === 'pending'
-              ? 'Tareas Pendientes'
-              : 'Tareas Completadas'}
-            <span className='text-gray-500 text-lg ml-2'>({filteredTasks.length})</span>
-          </h2>
+          <div className='flex items-center justify-between mb-6'>
+            <h2 className='text-2xl font-display font-bold text-gray-800'>
+              {filter === 'all'
+                ? 'Todas las Tareas'
+                : filter === 'pending'
+                ? 'Tareas Pendientes'
+                : 'Tareas Completadas'}
+            </h2>
+            <Badge variant='secondary' className='text-lg px-3 py-1 font-number font-black'>
+              {filteredTasks.length}
+            </Badge>
+          </div>
 
           <div className='space-y-3'>
             {filteredTasks.map((task) => (
@@ -327,43 +320,54 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                       </p>
                     </div>
                   </div>
-                  <div className='flex items-center gap-2 mt-2'>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${task.category.color} text-white`}
+                  <div className='flex items-center gap-2 mt-3'>
+                    <Badge variant='outline' className='gap-1'>
+                      <span>{task.category.icon}</span>
+                      {task.category.name}
+                    </Badge>
+                    <Badge 
+                      variant={
+                        task.difficulty === 'easy' 
+                          ? 'secondary' 
+                          : task.difficulty === 'medium' 
+                          ? 'default' 
+                          : 'destructive'
+                      }
                     >
-                      {task.category.icon} {task.category.name}
-                    </span>
-                    <span className='text-xs text-gray-500'>
                       {task.difficulty === 'easy'
                         ? '🟢'
                         : task.difficulty === 'medium'
                         ? '🟡'
                         : '🔴'}{' '}
                       {task.difficulty}
-                    </span>
-                    <span className='text-xs text-gray-500'>📅 {task.recurringType}</span>
+                    </Badge>
+                    <Badge variant='outline'>
+                      📅 {task.recurringType}
+                    </Badge>
                   </div>
                 </div>
                 <div className='text-right'>
-                  <div className='text-sm font-medium text-blue-600'>+{task.coinReward} 🪙</div>
-                  <div className='text-xs text-gray-500'>
+                  <div className='text-sm font-number font-bold text-blue-600'>+{task.coinReward} 🪙</div>
+                  <div className='text-xs font-number font-bold text-gray-500'>
                     +{task.skillRewards[task.category.primarySkill]} XP
                   </div>
-                  <div className='flex gap-1 mt-2'>
-                    <button
+                  <div className='flex gap-1 mt-3'>
+                    <Button
+                      variant='outline'
+                      size='sm'
                       onClick={() => openEditModal(task)}
-                      className='px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors'
-                      title='Editar tarea'
+                      className='h-8 w-8 p-0'
                     >
                       ✏️
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant='outline'
+                      size='sm'
                       onClick={() => removeTask(task.id)}
-                      className='px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors'
-                      title='Eliminar tarea'
+                      className='h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50'
                     >
                       🗑️
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>

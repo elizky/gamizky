@@ -1,15 +1,12 @@
-const CACHE_NAME = 'gamizky-v1';
+const CACHE_NAME = 'gamizky-v2'; // Incrementar versión para limpiar cache
 const urlsToCache = [
   '/',
   '/landing',
   '/login',
   '/home',
   '/tasks',
-  '/challenges',
-  '/shop',
   '/stats',
   '/history',
-  '/profile',
   '/manifest.json',
   '/gamizkyIcon.png',
   '/gamizky.png'
@@ -24,15 +21,58 @@ self.addEventListener('install', (event) => {
         return cache.addAll(urlsToCache);
       })
   );
+  // Force the waiting service worker to become the active service worker
+  self.skipWaiting();
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('Deleting old cache:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+  // Claim control of all clients
+  self.clients.claim();
 });
 
 // Fetch event - serve from cache when offline
 self.addEventListener('fetch', (event) => {
+  // Skip durante desarrollo para evitar problemas
+  if (event.request.url.includes('localhost') && event.request.url.includes('_next')) {
+    return;
+  }
+  
+  // Solo cachear requests GET
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
         // Return cached version or fetch from network
-        return response || fetch(event.request);
+        if (response) {
+          return response;
+        }
+        
+        return fetch(event.request).catch((error) => {
+          console.warn('Fetch failed for:', event.request.url, error);
+          // Return a basic response for failed requests
+          if (event.request.destination === 'document') {
+            return new Response('Service Worker: Resource not available offline', {
+              status: 503,
+              statusText: 'Service Unavailable'
+            });
+          }
+        });
       })
   );
 });

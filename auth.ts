@@ -27,15 +27,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   events: {
     async linkAccount({ user }) {
-      await db.user.update({
-        where: { id: user.id },
-        data: {
-          emailVerified: new Date(),
-        },
-      });
+      try {
+        await db.user.update({
+          where: { id: user.id },
+          data: {
+            emailVerified: new Date(),
+          },
+        });
+      } catch (error) {
+        console.error('Error updating user on link account:', error);
+      }
     },
   },
   pages: {
     signIn: '/login',
+    error: '/login',
   },
+  debug: process.env.NODE_ENV === 'development',
 });

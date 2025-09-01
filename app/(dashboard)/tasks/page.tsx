@@ -3,8 +3,9 @@ import { getTasks, getCategories } from '@/actions';
 import TasksClient from '@/components/pages/TasksClient';
 import { PrismaTask, PrismaTaskCategory } from "@/lib/types";
 
-// Forzar renderizado dinámico para evitar errores de prerender
+// Forzar renderizado dinámico para evitar errores de prerender y hidratación
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Componente de carga
 function LoadingSpinner() {

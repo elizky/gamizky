@@ -3,8 +3,9 @@ import { getTaskHistory } from '@/actions';
 import HistoryClient from '@/components/pages/HistoryClient';
 import { PrismaTask } from "@/lib/types";
 
-// Forzar renderizado dinámico para evitar errores de prerender
+// Forzar renderizado dinámico para evitar errores de prerender y hidratación
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Componente de carga
 function LoadingSpinner() {

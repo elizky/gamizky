@@ -9,6 +9,12 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Syne', 'Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+        number: ['Syne', 'system-ui', 'sans-serif'], // Para números
+      },
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
@@ -83,11 +89,11 @@ const config: Config = {
             height: '0',
           },
         },
-        'fadeIn': {
+        fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
-        'slideUp': {
+        slideUp: {
           '0%': { transform: 'translateY(20px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
         },
@@ -95,10 +101,10 @@ const config: Config = {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'bounce': 'bounce 1s infinite',
-        'spin': 'spin 1s linear infinite',
-        'ping': 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite',
+        pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        bounce: 'bounce 1s infinite',
+        spin: 'spin 1s linear infinite',
+        ping: 'ping 1s cubic-bezier(0, 0, 0.2, 1) infinite',
         'fade-in': 'fadeIn 0.5s ease-in-out',
         'slide-up': 'slideUp 0.3s ease-out',
       },

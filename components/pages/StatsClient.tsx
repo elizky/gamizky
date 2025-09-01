@@ -251,10 +251,10 @@ export default function StatsClient({ user, statsData }: StatsClientProps) {
     <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4'>
       <div className='max-w-7xl mx-auto'>
         {/* Header */}
-        <div className='mb-8'>
-          <h1 className='text-3xl font-bold text-gray-800 mb-2'>📊 Estadísticas</h1>
-          <p className='text-gray-600'>Analiza tu progreso y rendimiento en detalle</p>
-        </div>
+                 <div className='mb-8'>
+           <h1 className='text-4xl font-display font-black text-gray-800 mb-2'>📊 Estadísticas</h1>
+           <p className='text-gray-600 font-sans'>Analiza tu progreso y rendimiento en detalle</p>
+         </div>
 
         {/* Tabs */}
         <div className='flex mb-6 bg-white rounded-lg p-1 shadow'>
@@ -302,39 +302,41 @@ export default function StatsClient({ user, statsData }: StatsClientProps) {
                     color='#10B981'
                   />
                 </div>
-                <h3 className='text-lg font-semibold text-gray-800 mb-1'>Tasa de Completitud</h3>
-                <p className='text-gray-600 text-sm'>
-                  {statsData.overview.completedTasks} de {statsData.overview.totalTasks} tareas
-                </p>
+                                 <h3 className='text-lg font-display font-bold text-gray-800 mb-1'>Tasa de Completitud</h3>
+                 <p className='text-gray-600 text-sm font-sans'>
+                   <span className='font-number font-bold'>{statsData.overview.completedTasks}</span> de <span className='font-number font-bold'>{statsData.overview.totalTasks}</span> tareas
+                 </p>
               </div>
 
               <div className='bg-white rounded-2xl shadow-lg p-6'>
                 <div className='flex items-center justify-between mb-4'>
                   <span className='text-3xl'>🔥</span>
-                  <span className='text-2xl font-bold text-orange-600'>{user.streak}</span>
+                  <span className='text-3xl font-number font-black text-orange-600'>{user.streak}</span>
                 </div>
-                <h3 className='text-lg font-semibold text-gray-800 mb-1'>Racha Actual</h3>
-                <p className='text-gray-600 text-sm'>días consecutivos</p>
+                <h3 className='text-lg font-display font-bold text-gray-800 mb-1'>Racha Actual</h3>
+                <p className='text-gray-600 text-sm font-sans'>días consecutivos</p>
               </div>
 
               <div className='bg-white rounded-2xl shadow-lg p-6'>
                 <div className='flex items-center justify-between mb-4'>
                   <span className='text-3xl'>⭐</span>
-                  <span className='text-2xl font-bold text-purple-600'>{user.level}</span>
+                  <span className='text-3xl font-number font-black text-purple-600'>{user.level}</span>
                 </div>
-                <h3 className='text-lg font-semibold text-gray-800 mb-1'>Nivel Actual</h3>
-                <p className='text-gray-600 text-sm'>{user.totalXP.toLocaleString()} XP total</p>
+                <h3 className='text-lg font-display font-bold text-gray-800 mb-1'>Nivel Actual</h3>
+                <p className='text-gray-600 text-sm font-sans'>
+                  <span className='font-number font-bold'>{user.totalXP.toLocaleString()}</span> XP total
+                </p>
               </div>
 
               <div className='bg-white rounded-2xl shadow-lg p-6'>
                 <div className='flex items-center justify-between mb-4'>
                   <span className='text-3xl'>✅</span>
-                  <span className='text-2xl font-bold text-green-600'>
+                  <span className='text-3xl font-number font-black text-green-600'>
                     {statsData.overview.completedTasks}
                   </span>
                 </div>
-                <h3 className='text-lg font-semibold text-gray-800 mb-1'>Tareas Completadas</h3>
-                <p className='text-gray-600 text-sm'>tareas totales</p>
+                <h3 className='text-lg font-display font-bold text-gray-800 mb-1'>Tareas Completadas</h3>
+                <p className='text-gray-600 text-sm font-sans'>tareas totales</p>
               </div>
             </div>
 

@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import { Oxanium } from 'next/font/google';
+import { Syne } from 'next/font/google';
 import './globals.css';
 import { NextAuthProvider } from '@/components/NextAuthProvider';
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration';
 
-const oxanium = Oxanium({
+const syne = Syne({
   variable: '--font-oxanium',
   subsets: ['latin'],
 });
@@ -54,7 +54,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='es'>
-      <body className={`${oxanium.variable} antialiased`}>
+      <body className={`${syne.variable} antialiased`}>
         <NextAuthProvider>
           {children}
           <ServiceWorkerRegistration />
