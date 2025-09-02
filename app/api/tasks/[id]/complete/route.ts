@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/server/db/prisma';
 import { auth } from '@/auth';
+import { isTaskAvailableToday } from '@/lib/recurring';
+import { getRecurringXPMultiplier } from '@/lib/gamification';
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
 
@@ -27,16 +26,31 @@ export async function POST(
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
-    if (task.completed) {
-      return NextResponse.json({ error: 'Task already completed' }, { status: 400 });
+    // Check if task is available to be completed
+    const isAvailable = isTaskAvailableToday({
+      completions: task.completions,
+      recurring: task.recurring,
+      recurringType: task.recurringType,
+      recurringTarget: task.recurringTarget,
+    });
+
+    if (!isAvailable) {
+      return NextResponse.json(
+        { error: 'Task is not available to be completed at this time' },
+        { status: 400 }
+      );
     }
 
-    // Marcar la tarea como completada
+    // Marcar la tarea como completada y agregar al array de completions
+    const now = new Date();
     await db.task.update({
       where: { id: taskId },
       data: {
         completed: true,
-        completedAt: new Date(),
+        completedAt: now,
+        completions: {
+          push: now,
+        },
       },
     });
 
@@ -59,7 +73,18 @@ export async function POST(
 }
 
 // Función para aplicar recompensas al completar
-async function applyTaskRewards(task: { skillRewards: unknown; coinReward: number }, userId: string) {
+async function applyTaskRewards(
+  task: {
+    skillRewards: unknown;
+    coinReward: number;
+    difficulty: string;
+    estimatedDuration: number | null;
+    category: { primarySkill: string };
+    completions: Date[];
+    recurringType: string | null;
+  },
+  userId: string
+) {
   // Obtener o crear las habilidades del usuario
   const userSkills = await db.userSkill.findMany({
     where: { userId },
@@ -82,9 +107,35 @@ async function applyTaskRewards(task: { skillRewards: unknown; coinReward: numbe
     }
   }
 
-  // Aplicar recompensas de habilidades desde el campo JSON
-  const skillRewards = task.skillRewards as Record<string, number>;
-  for (const [skillType, amount] of Object.entries(skillRewards)) {
+  // Usar las recompensas definidas en la tarea
+  const taskSkillRewards = task.skillRewards as Record<string, number>;
+  const taskTotalXP = Object.values(taskSkillRewards).reduce((sum, xp) => sum + xp, 0);
+  const taskCoinReward = task.coinReward;
+
+  // Aplicar multiplicador para tareas recurrentes
+  const multiplier = getRecurringXPMultiplier(
+    task.recurringType,
+    task.completions.filter((c) => new Date(c).toDateString() === new Date().toDateString()).length,
+    task.completions.filter((c) => {
+      const completionDate = new Date(c);
+      const now = new Date();
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - now.getDay());
+      return completionDate >= weekStart;
+    }).length
+  );
+
+  const finalSkillRewards = Object.fromEntries(
+    Object.entries(taskSkillRewards).map(([skill, xp]) => [
+      skill,
+      Math.round(xp * multiplier),
+    ])
+  );
+  const finalTotalXP = Math.round(taskTotalXP * multiplier);
+  const finalCoinReward = Math.round(taskCoinReward * multiplier);
+
+  // Aplicar recompensas de habilidades automáticas
+  for (const [skillType, amount] of Object.entries(finalSkillRewards)) {
     if (amount > 0) {
       await db.userSkill.update({
         where: {
@@ -106,31 +157,24 @@ async function applyTaskRewards(task: { skillRewards: unknown; coinReward: numbe
   }
 
   // Actualizar XP total del usuario
-  const totalSkillXP = Object.values(skillRewards).reduce((sum, amount) => sum + amount, 0);
-  await db.user.update({
+  const updatedUserData = await db.user.update({
     where: { id: userId },
     data: {
       totalXP: {
-        increment: totalSkillXP,
+        increment: finalTotalXP,
       },
       coins: {
-        increment: task.coinReward,
+        increment: finalCoinReward,
       },
     },
   });
 
-  // Recalcular nivel del usuario
-  const updatedUser = await db.user.findUnique({
-    where: { id: userId },
-  });
-
-  if (updatedUser) {
-    const newLevel = Math.floor(updatedUser.totalXP / 200) + 1;
-    if (newLevel > updatedUser.level) {
-      await db.user.update({
-        where: { id: userId },
-        data: { level: newLevel },
-      });
-    }
+  // Recalcular y actualizar el nivel basado en el XP total
+  const newLevel = Math.floor(updatedUserData.totalXP / 200) + 1;
+  if (newLevel !== updatedUserData.level) {
+    await db.user.update({
+      where: { id: userId },
+      data: { level: newLevel },
+    });
   }
 }

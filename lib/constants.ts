@@ -116,38 +116,6 @@ export const CHARACTERS = [
   },
 ] as const;
 
-// Configuración de logros
-export const ACHIEVEMENTS = {
-  FIRST_TASK: {
-    id: 'first_task',
-    name: 'Primera Tarea',
-    description: 'Completa tu primera tarea',
-    icon: '🎯',
-    xpReward: 50,
-  },
-  STREAK_7: {
-    id: 'streak_7',
-    name: 'Semana de Éxito',
-    description: 'Mantén una racha de 7 días',
-    icon: '🔥',
-    xpReward: 100,
-  },
-  STREAK_30: {
-    id: 'streak_30',
-    name: 'Mes de Consistencia',
-    description: 'Mantén una racha de 30 días',
-    icon: '🌟',
-    xpReward: 500,
-  },
-  LEVEL_10: {
-    id: 'level_10',
-    name: 'Decano',
-    description: 'Alcanza el nivel 10',
-    icon: '👑',
-    xpReward: 1000,
-  },
-} as const;
-
 // Configuración de la aplicación
 export const APP_CONFIG = {
   NAME: 'GAMIZKY',

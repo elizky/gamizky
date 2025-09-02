@@ -118,11 +118,13 @@ model Task {
   subcategory       String?
   difficulty        String // "easy", "medium", "hard"
   coinReward        Int
-  completed         Boolean   @default(false)
-  completedAt       DateTime?
+  completed         Boolean   @default(false) // Computed field for compatibility
+  completedAt       DateTime? // Last completion date for compatibility
+  completions       DateTime[] // Array of all completion dates
   dueDate           DateTime?
   recurring         Boolean   @default(false)
-  recurringType     String? // "daily", "weekly", "monthly"
+  recurringType     String? // "daily", "weekly", "monthly", "x_per_week", "x_per_month"
+  recurringTarget   Int? // For "x_per_week" or "x_per_month" patterns
   scheduledFor      DateTime?
   spontaneous       Boolean   @default(false)
   estimatedDuration Int? // in minutes

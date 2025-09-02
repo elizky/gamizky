@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/server/db/prisma';
 import { auth } from '@/auth';
+import { getTaskCompletionStatus } from '@/lib/recurring';
 
 export async function GET() {
   try {
@@ -18,7 +19,26 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
 
-    return NextResponse.json(tasks);
+    // Update completed status based on recurring logic
+    const tasksWithUpdatedStatus = tasks.map(task => {
+      if (!task.recurring) {
+        return task;
+      }
+
+      const status = getTaskCompletionStatus({
+        completions: task.completions,
+        recurring: task.recurring,
+        recurringType: task.recurringType,
+        recurringTarget: task.recurringTarget,
+      });
+
+      return {
+        ...task,
+        completed: !status.isAvailable,
+      };
+    });
+
+    return NextResponse.json(tasksWithUpdatedStatus);
   } catch (error) {
     console.error('Error fetching tasks:', error);
     return NextResponse.json({ error: 'Failed to fetch tasks' }, { status: 500 });
@@ -44,6 +64,7 @@ export async function POST(request: Request) {
       estimatedDuration,
       recurring = true,
       recurringType = 'daily',
+      recurringTarget,
     } = body;
 
     // Validar que haya al menos una categoría
@@ -66,6 +87,8 @@ export async function POST(request: Request) {
         estimatedDuration,
         recurring,
         recurringType,
+        recurringTarget,
+        completions: [],
         userId: session.user.id,
       },
       include: {

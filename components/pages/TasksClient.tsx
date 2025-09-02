@@ -3,14 +3,16 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { updateTask, deleteTask, completeTask } from '../../actions';
+import { updateTask, deleteTask, completeTask, uncompleteTask } from '../../actions';
 import type { PrismaTask, PrismaTaskCategory } from '../../lib/types';
+import { getRecurringProgress, getNeglectIndicator } from '../../lib/recurring';
 import { AddTaskModal } from '../modals';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { Progress } from '../ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 
 interface TasksClientProps {
   tasks: PrismaTask[];
@@ -72,12 +74,18 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
       if (!task) return;
 
       if (task.completed) {
-        const result = await updateTask(taskId, { completed: false });
+        const result = await uncompleteTask(taskId);
         if (result.success) {
           setTasks((prev) =>
             prev.map((task) => (task.id === taskId ? { ...task, completed: false } : task))
           );
-          setSuccess('Tarea marcada como pendiente');
+          
+          // Mostrar recompensas revertidas
+          if (result.rewards) {
+            setSuccess(`Tarea desmarcada. ${result.rewards.xp} XP, ${result.rewards.coins} monedas revertidas`);
+          } else {
+            setSuccess('Tarea marcada como pendiente');
+          }
         } else {
           setError(result.error || 'Error al desmarcar la tarea');
         }
@@ -87,7 +95,15 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
           setTasks((prev) =>
             prev.map((task) => (task.id === taskId ? { ...task, completed: true } : task))
           );
-          setSuccess('¡Tarea completada! +25 monedas');
+
+          // Mostrar recompensas reales obtenidas
+          if (result.rewards) {
+            setSuccess(
+              `¡Tarea completada! +${result.rewards.xp} XP, +${result.rewards.coins} monedas`
+            );
+          } else {
+            setSuccess('¡Tarea completada!');
+          }
         } else {
           setError(result.error || 'Error al completar la tarea');
         }
@@ -136,6 +152,7 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
         difficulty: editingTask.difficulty,
         estimatedDuration: editingTask.estimatedDuration || undefined,
         recurringType: editingTask.recurringType || undefined,
+        recurringTarget: editingTask.recurringTarget || undefined,
       });
 
       if (result.success && result.data) {
@@ -291,16 +308,26 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
             </Badge>
           </div>
 
-          <div className='space-y-3'>
-            {filteredTasks.map((task) => (
-              <div
-                key={task.id}
-                className={`flex items-center p-4 rounded-lg transition-all hover:scale-[1.01] ${
-                  task.completed
-                    ? 'bg-green-50 border border-green-200'
-                    : 'bg-gray-50 border border-gray-200'
-                }`}
-              >
+          <TooltipProvider>
+            <div className='space-y-3'>
+              {filteredTasks.map((task) => {
+                // Check if task is neglected
+                const neglectIndicator = getNeglectIndicator({
+                  completions: task.completions,
+                  recurring: task.recurring,
+                  recurringType: task.recurringType,
+                  recurringTarget: task.recurringTarget,
+                });
+
+                return (
+                  <div
+                    key={task.id}
+                    className={`flex items-center p-4 rounded-lg transition-all hover:scale-[1.01] ${
+                      task.completed
+                        ? 'bg-green-50 border border-green-200'
+                        : 'bg-gray-50 border border-gray-200'
+                    }`}
+                  >
                 <div className='flex-1'>
                   <div className='flex items-center gap-3'>
                     <button
@@ -314,18 +341,66 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                       {task.completed && '✓'}
                     </button>
                     <div>
-                      <h4
-                        className={`font-medium ${
-                          task.completed ? 'line-through text-gray-600' : 'text-gray-800'
-                        }`}
-                      >
-                        {task.title}
-                      </h4>
+                      <div className='flex items-center gap-2'>
+                        <h4
+                          className={`font-medium ${
+                            task.completed ? 'line-through text-gray-600' : 'text-gray-800'
+                          }`}
+                        >
+                          {task.title}
+                        </h4>
+                        
+                        {/* Indicador de tarea neglectada */}
+                        {neglectIndicator && (
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <span 
+                                className={`text-lg ${
+                                  neglectIndicator.severity === 'severe' ? 'animate-pulse' : ''
+                                }`}
+                              >
+                                {neglectIndicator.emoji}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className='text-sm'>{neglectIndicator.message}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </div>
                       <p
                         className={`text-sm ${task.completed ? 'text-gray-500' : 'text-gray-600'}`}
                       >
                         {task.description}
                       </p>
+
+                      {/* Progreso para tareas recurrentes avanzadas */}
+                      {task.recurring &&
+                        (task.recurringType === 'x_per_week' ||
+                          task.recurringType === 'x_per_month') &&
+                        (() => {
+                          const progress = getRecurringProgress({
+                            completions: task.completions,
+                            recurring: task.recurring,
+                            recurringType: task.recurringType,
+                            recurringTarget: task.recurringTarget,
+                          });
+
+                          if (progress) {
+                            return (
+                              <div className='mt-2'>
+                                <div className='flex justify-between items-center text-xs text-gray-600 mb-1'>
+                                  <span>
+                                    {progress.current}/{progress.target} esta {progress.period}
+                                  </span>
+                                  <span>{Math.round(progress.percentage)}%</span>
+                                </div>
+                                <Progress value={progress.percentage} className='h-2' />
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
                     </div>
                   </div>
                   <div className='flex items-center gap-2 mt-3'>
@@ -351,13 +426,26 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                       {' - '}
                       {task.difficulty}
                     </Badge>
-                    <Badge variant='outline'>📅 - {task.recurringType}</Badge>
+                    <Badge variant='outline'>
+                      📅 -{' '}
+                      {task.recurringType === 'daily'
+                        ? 'Diaria'
+                        : task.recurringType === 'weekly'
+                        ? 'Semanal'
+                        : task.recurringType === 'monthly'
+                        ? 'Mensual'
+                        : task.recurringType === 'x_per_week'
+                        ? `${task.recurringTarget}/semana`
+                        : task.recurringType === 'x_per_month'
+                        ? `${task.recurringTarget}/mes`
+                        : task.recurringType}
+                    </Badge>
                   </div>
                 </div>
                 <div className='flex flex-col gap-1'>
                   <Badge variant='reward-coin'>+{task.coinReward} 🪙</Badge>
                   <Badge variant='reward-xp'>
-                    +{task.skillRewards[task.category.primarySkill]} XP
+                    +{Object.values(task.skillRewards as Record<string, number>).reduce((sum, xp) => sum + xp, 0)} XP
                   </Badge>
                   <div className='flex gap-1 mt-3'>
                     <Button
@@ -379,7 +467,8 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                   </div>
                 </div>
               </div>
-            ))}
+                );
+              })}
             {filteredTasks.length === 0 && (
               <div className='text-center py-12'>
                 <div className='text-6xl mb-4'>📝</div>
@@ -400,7 +489,8 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                 )}
               </div>
             )}
-          </div>
+            </div>
+          </TooltipProvider>
         </div>
       </div>
 
@@ -505,7 +595,12 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                       onChange={(e) =>
                         setEditingTask({
                           ...editingTask,
-                          recurringType: e.target.value as 'daily' | 'weekly' | 'monthly',
+                          recurringType: e.target.value as
+                            | 'daily'
+                            | 'weekly'
+                            | 'monthly'
+                            | 'x_per_week'
+                            | 'x_per_month',
                         })
                       }
                       className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
@@ -513,8 +608,33 @@ export default function TasksClient({ tasks: initialTasks, categories }: TasksCl
                       <option value='daily'>📅 Diaria</option>
                       <option value='weekly'>📆 Semanal</option>
                       <option value='monthly'>🗓️ Mensual</option>
+                      <option value='x_per_week'>💪 X veces por semana</option>
+                      <option value='x_per_month'>🎯 X veces por mes</option>
                     </select>
                   </div>
+
+                  {/* Campo condicional para target de recurrencia */}
+                  {(editingTask.recurringType === 'x_per_week' ||
+                    editingTask.recurringType === 'x_per_month') && (
+                    <div>
+                      <label className='block text-sm font-medium text-gray-700 mb-2'>
+                        🎯 ¿Cuántas veces?
+                      </label>
+                      <input
+                        type='number'
+                        min='1'
+                        max='30'
+                        value={editingTask.recurringTarget || 1}
+                        onChange={(e) =>
+                          setEditingTask({
+                            ...editingTask,
+                            recurringTarget: parseInt(e.target.value) || 1,
+                          })
+                        }
+                        className='w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                      />
+                    </div>
+                  )}
 
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-2'>Duración</label>

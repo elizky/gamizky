@@ -54,9 +54,11 @@ export interface PrismaTask {
   skillRewards: Record<string, number>;
   completed: boolean;
   completedAt: Date | null;
+  completions: Date[];
   dueDate: Date | null;
   recurring: boolean;
-  recurringType: 'daily' | 'weekly' | 'monthly' | null;
+  recurringType: 'daily' | 'weekly' | 'monthly' | 'x_per_week' | 'x_per_month' | null;
+  recurringTarget: number | null;
   scheduledFor: Date | null;
   spontaneous: boolean;
   estimatedDuration: number | null;
@@ -159,9 +161,11 @@ export interface Task {
   coinReward: number;
   completed: boolean;
   completedAt?: Date;
+  completions: Date[];
   dueDate?: Date;
   recurring: boolean;
-  recurringType?: 'daily' | 'weekly' | 'monthly';
+  recurringType?: 'daily' | 'weekly' | 'monthly' | 'x_per_week' | 'x_per_month';
+  recurringTarget?: number;
   scheduledFor?: Date;
   spontaneous?: boolean;
   estimatedDuration?: number;

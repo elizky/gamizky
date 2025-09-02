@@ -3,7 +3,8 @@
 import { db } from '@/server/db/prisma';
 import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
-
+import { isTaskAvailableToday, getTaskCompletionStatus } from '@/lib/recurring';
+import { getRecurringXPMultiplier } from '@/lib/gamification';
 
 export async function getTasks() {
   try {
@@ -18,7 +19,28 @@ export async function getTasks() {
       orderBy: { createdAt: 'desc' },
     });
 
-    return { success: true, data: tasks };
+    // Update completed status based on recurring logic
+    const tasksWithUpdatedStatus = tasks.map((task) => {
+      if (!task.recurring) {
+        // For non-recurring tasks, use the existing completed status
+        return task;
+      }
+
+      // For recurring tasks, check if they're available today
+      const status = getTaskCompletionStatus({
+        completions: task.completions,
+        recurring: task.recurring,
+        recurringType: task.recurringType,
+        recurringTarget: task.recurringTarget,
+      });
+
+      return {
+        ...task,
+        completed: !status.isAvailable, // If not available, it means it's completed for today/period
+      };
+    });
+
+    return { success: true, data: tasksWithUpdatedStatus };
   } catch (error) {
     console.error('Error fetching tasks:', error);
     return {
@@ -36,9 +58,9 @@ export async function getTaskHistory() {
     }
 
     const completedTasks = await db.task.findMany({
-      where: { 
+      where: {
         userId: session.user.id,
-        completed: true 
+        completed: true,
       },
       include: { category: true },
       orderBy: { updatedAt: 'desc' },
@@ -63,7 +85,8 @@ export async function createTask(data: {
   coinReward?: number;
   estimatedDuration?: number;
   recurring?: boolean;
-  recurringType?: 'daily' | 'weekly' | 'monthly';
+  recurringType?: 'daily' | 'weekly' | 'monthly' | 'x_per_week' | 'x_per_month';
+  recurringTarget?: number;
   completed?: boolean;
 }) {
   try {
@@ -76,7 +99,7 @@ export async function createTask(data: {
       throw new Error('Task title is required');
     }
 
-    if (!data.categories.length || !data.categories.some(cat => cat.categoryId)) {
+    if (!data.categories.length || !data.categories.some((cat) => cat.categoryId)) {
       throw new Error('At least one category is required');
     }
 
@@ -90,7 +113,9 @@ export async function createTask(data: {
         estimatedDuration: data.estimatedDuration || 0,
         recurring: data.recurring ?? true,
         recurringType: data.recurringType || 'daily',
+        recurringTarget: data.recurringTarget,
         completed: data.completed || false,
+        completions: [],
         userId: session.user.id,
         categoryId: data.categories[0].categoryId, // Usar la primera categoría como principal
       },
@@ -121,7 +146,8 @@ export async function updateTask(
     coinReward?: number;
     estimatedDuration?: number;
     recurring?: boolean;
-    recurringType?: 'daily' | 'weekly' | 'monthly';
+    recurringType?: 'daily' | 'weekly' | 'monthly' | 'x_per_week' | 'x_per_month';
+    recurringTarget?: number;
     completed?: boolean;
   }
 ) {
@@ -175,43 +201,89 @@ export async function completeTask(id: string) {
       throw new Error('Task not found or unauthorized');
     }
 
-    if (existingTask.completed) {
-      throw new Error('Task is already completed');
+    // Check if task is available to be completed today
+    const isAvailable = isTaskAvailableToday({
+      completions: existingTask.completions,
+      recurring: existingTask.recurring,
+      recurringType: existingTask.recurringType,
+      recurringTarget: existingTask.recurringTarget,
+    });
+
+    if (!isAvailable) {
+      throw new Error('Task is not available to be completed at this time');
     }
 
+    const now = new Date();
     const updatedTask = await db.task.update({
       where: { id },
-      data: { 
+      data: {
         completed: true,
-        completedAt: new Date()
+        completedAt: now,
+        completions: {
+          push: now,
+        },
       },
       include: { category: true },
     });
 
-    // Aplicar recompensas XP y coins al completar tarea
-    const skillRewards = existingTask.skillRewards as Record<string, number>;
-    const totalXPGained = Object.values(skillRewards).reduce((sum, xp) => sum + xp, 0);
-    
+    // Usar las recompensas definidas en la tarea
+    const taskSkillRewards = existingTask.skillRewards as Record<string, number>;
+    const taskTotalXP = Object.values(taskSkillRewards).reduce((sum, xp) => sum + xp, 0);
+    const taskCoinReward = existingTask.coinReward;
+
+    // Aplicar multiplicador para tareas recurrentes
+    const multiplier = getRecurringXPMultiplier(
+      existingTask.recurringType,
+      existingTask.completions.filter(
+        (c) => new Date(c).toDateString() === new Date().toDateString()
+      ).length,
+      existingTask.completions.filter((c) => {
+        const completionDate = new Date(c);
+        const now = new Date();
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - now.getDay());
+        return completionDate >= weekStart;
+      }).length
+    );
+
+    const finalSkillRewards = Object.fromEntries(
+      Object.entries(taskSkillRewards).map(([skill, xp]) => [
+        skill,
+        Math.round(xp * multiplier),
+      ])
+    );
+    const finalTotalXP = Math.round(taskTotalXP * multiplier);
+    const finalCoinReward = Math.round(taskCoinReward * multiplier);
+
     // Actualizar usuario con XP total
-    await db.user.update({
+    const updatedUserData = await db.user.update({
       where: { id: session.user.id },
       data: {
-        totalXP: { increment: totalXPGained },
-        level: { increment: Math.floor(totalXPGained / 200) }, // Simplificado: 200 XP por nivel
-      }
+        totalXP: { increment: finalTotalXP },
+        coins: { increment: finalCoinReward },
+      },
     });
 
+    // Recalcular y actualizar el nivel basado en el XP total
+    const newLevel = Math.floor(updatedUserData.totalXP / 200) + 1;
+    if (newLevel !== updatedUserData.level) {
+      await db.user.update({
+        where: { id: session.user.id },
+        data: { level: newLevel },
+      });
+    }
+
     // Actualizar habilidades específicas
-    for (const [skillType, xpAmount] of Object.entries(skillRewards)) {
+    for (const [skillType, xpAmount] of Object.entries(finalSkillRewards)) {
       if (xpAmount > 0) {
         // Obtener o crear la habilidad del usuario
         const existingSkill = await db.userSkill.findUnique({
           where: {
             userId_skillType: {
               userId: session.user.id,
-              skillType: skillType
-            }
-          }
+              skillType: skillType,
+            },
+          },
         });
 
         if (existingSkill) {
@@ -228,8 +300,8 @@ export async function completeTask(id: string) {
               currentXP: finalCurrentXP,
               totalXP: newTotalXP,
               level: newLevel,
-              xpToNextLevel: xpForNextLevel - finalCurrentXP
-            }
+              xpToNextLevel: xpForNextLevel - finalCurrentXP,
+            },
           });
         } else {
           // Crear nueva habilidad si no existe
@@ -240,22 +312,170 @@ export async function completeTask(id: string) {
               currentXP: xpAmount,
               totalXP: xpAmount,
               level: Math.floor(xpAmount / 200) + 1,
-              xpToNextLevel: 200 - (xpAmount % 200)
-            }
+              xpToNextLevel: 200 - (xpAmount % 200),
+            },
           });
         }
       }
     }
 
+    // Obtener datos actualizados del usuario para la UI
+    const updatedUser = await db.user.findUnique({
+      where: { id: session.user.id },
+      include: {
+        skills: true,
+      },
+    });
+
     revalidatePath('/tasks');
     revalidatePath('/');
 
-    return { success: true, data: updatedTask };
+    return { 
+      success: true, 
+      data: updatedTask,
+      user: updatedUser,
+      rewards: {
+        xp: finalTotalXP,
+        coins: finalCoinReward,
+        skillRewards: finalSkillRewards,
+      }
+    };
   } catch (error) {
     console.error('Error completing task:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to complete task',
+    };
+  }
+}
+
+export async function uncompleteTask(id: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      throw new Error('Unauthorized');
+    }
+
+    const existingTask = await db.task.findFirst({
+      where: { id, userId: session.user.id },
+      include: { category: true },
+    });
+
+    if (!existingTask) {
+      throw new Error('Task not found or unauthorized');
+    }
+
+    if (!existingTask.completed) {
+      throw new Error('Task is not completed');
+    }
+
+    // Remove the most recent completion from the array
+    const updatedCompletions = existingTask.completions.slice(0, -1);
+
+    const updatedTask = await db.task.update({
+      where: { id },
+      data: { 
+        completed: updatedCompletions.length === 0 ? false : true,
+        completedAt: updatedCompletions.length > 0 ? updatedCompletions[updatedCompletions.length - 1] : null,
+        completions: updatedCompletions
+      },
+      include: { category: true },
+    });
+
+    // Revertir recompensas si se desmarca
+    const taskSkillRewards = existingTask.skillRewards as Record<string, number>;
+    const taskTotalXP = Object.values(taskSkillRewards).reduce((sum, xp) => sum + xp, 0);
+    const taskCoinReward = existingTask.coinReward;
+
+    // Aplicar multiplicador para tareas recurrentes (mismo que al completar)
+    const multiplier = 1.0; // Por simplicidad, asumimos multiplicador 1 para desmarcar
+    
+    const finalSkillRewards = Object.fromEntries(
+      Object.entries(taskSkillRewards).map(([skill, xp]) => [
+        skill,
+        -Math.round(xp * multiplier), // Negativo para restar
+      ])
+    );
+    const finalTotalXP = -Math.round(taskTotalXP * multiplier);
+    const finalCoinReward = -Math.round(taskCoinReward * multiplier);
+
+    // Actualizar usuario restando XP y monedas
+    const updatedUserData = await db.user.update({
+      where: { id: session.user.id },
+      data: {
+        totalXP: { increment: finalTotalXP }, // Negativo = resta
+        coins: { increment: finalCoinReward }, // Negativo = resta
+      },
+    });
+
+    // Recalcular y actualizar el nivel basado en el XP total
+    const newLevel = Math.max(1, Math.floor(updatedUserData.totalXP / 200) + 1); // Mínimo nivel 1
+    if (newLevel !== updatedUserData.level) {
+      await db.user.update({
+        where: { id: session.user.id },
+        data: { level: newLevel },
+      });
+    }
+
+    // Actualizar habilidades específicas (restando XP)
+    for (const [skillType, xpAmount] of Object.entries(finalSkillRewards)) {
+      if (xpAmount !== 0) { // xpAmount es negativo
+        // Obtener la habilidad del usuario
+        const existingSkill = await db.userSkill.findUnique({
+          where: {
+            userId_skillType: {
+              userId: session.user.id,
+              skillType: skillType,
+            },
+          },
+        });
+
+        if (existingSkill) {
+          // Calcular nuevo XP (restando)
+          const newTotalXP = Math.max(0, existingSkill.totalXP + xpAmount); // No puede ser negativo
+          const newLevel = Math.max(1, Math.floor(newTotalXP / 200) + 1); // Mínimo nivel 1
+          const xpForNextLevel = newLevel * 200;
+          const finalCurrentXP = newTotalXP % 200;
+
+          await db.userSkill.update({
+            where: { id: existingSkill.id },
+            data: {
+              currentXP: finalCurrentXP,
+              totalXP: newTotalXP,
+              level: newLevel,
+              xpToNextLevel: xpForNextLevel - finalCurrentXP,
+            },
+          });
+        }
+      }
+    }
+
+    // Obtener datos actualizados del usuario para la UI
+    const updatedUser = await db.user.findUnique({
+      where: { id: session.user.id },
+      include: {
+        skills: true,
+      },
+    });
+
+    revalidatePath('/tasks');
+    revalidatePath('/');
+
+    return { 
+      success: true, 
+      data: updatedTask,
+      user: updatedUser,
+      rewards: {
+        xp: finalTotalXP, // Negativo
+        coins: finalCoinReward, // Negativo
+        skillRewards: finalSkillRewards,
+      }
+    };
+  } catch (error) {
+    console.error('Error uncompleting task:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to uncomplete task',
     };
   }
 }

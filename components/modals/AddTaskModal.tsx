@@ -1,11 +1,18 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { createTask } from '../../actions';
 import type { PrismaTask, PrismaTaskCategory } from '@/lib/types';
+import { calculateTaskRewards, formatXPBreakdown } from '@/lib/gamification';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Select, NeoSelectContent, NeoSelectItem, NeoSelectTrigger, SelectValue } from '../ui/select';
+import {
+  Select,
+  NeoSelectContent,
+  NeoSelectItem,
+  NeoSelectTrigger,
+  SelectValue,
+} from '../ui/select';
 import { Label } from '../ui/label';
 import { Dialog, NeoDialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 
@@ -27,43 +34,48 @@ export default function AddTaskModal({
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
-    categories: [{ categoryId: '', points: 50 }] as Array<{ categoryId: string; points: number }>,
+    categoryId: '',
     difficulty: 'medium' as 'easy' | 'medium' | 'hard',
-    skillRewards: {} as Record<string, number>,
     estimatedDuration: 0,
     recurring: true,
-    recurringType: 'daily' as 'daily' | 'weekly' | 'monthly',
+    recurringType: 'daily' as 'daily' | 'weekly' | 'monthly' | 'x_per_week' | 'x_per_month',
+    recurringTarget: 1,
   });
 
+  // Calculate automatic rewards based on difficulty and duration
+  const calculatedRewards = useMemo(() => {
+    if (!newTask.categoryId) {
+      return null;
+    }
+
+    const primaryCategory = categories.find((c) => c.id === newTask.categoryId);
+    if (!primaryCategory) return null;
+
+    return calculateTaskRewards(
+      newTask.difficulty,
+      newTask.estimatedDuration,
+      primaryCategory.primarySkill
+    );
+  }, [newTask.difficulty, newTask.estimatedDuration, newTask.categoryId, categories]);
+
   const addTask = useCallback(async () => {
-    if (!newTask.title.trim() || !newTask.categories.some((cat) => cat.categoryId)) return;
+    if (!newTask.title.trim() || !newTask.categoryId || !calculatedRewards) return;
 
     try {
       setIsSubmitting(true);
       setError(null);
 
-      const skillRewards: Record<string, number> = {};
-      const coinReward = 25; // Moneda base por tarea
-
-      // Construir skillRewards basado en todas las categorías seleccionadas
-      newTask.categories.forEach((cat) => {
-        if (cat.categoryId) {
-          const category = categories.find((c) => c.id === cat.categoryId);
-          if (category) {
-            // Si ya existe la habilidad, sumar los puntos
-            if (skillRewards[category.primarySkill]) {
-              skillRewards[category.primarySkill] += cat.points;
-            } else {
-              skillRewards[category.primarySkill] = cat.points;
-            }
-          }
-        }
-      });
-
       const result = await createTask({
-        ...newTask,
-        skillRewards,
-        coinReward,
+        title: newTask.title,
+        description: newTask.description,
+        categories: [{ categoryId: newTask.categoryId, points: 0 }], // Mantener compatibilidad con backend
+        difficulty: newTask.difficulty,
+        skillRewards: calculatedRewards.skillRewards,
+        coinReward: calculatedRewards.coinReward,
+        estimatedDuration: newTask.estimatedDuration,
+        recurring: newTask.recurring,
+        recurringType: newTask.recurringType,
+        recurringTarget: newTask.recurringTarget,
       });
 
       if (result.success) {
@@ -76,12 +88,12 @@ export default function AddTaskModal({
         setNewTask({
           title: '',
           description: '',
-          categories: [{ categoryId: '', points: 50 }],
+          categoryId: '',
           difficulty: 'medium',
-          skillRewards: {},
           estimatedDuration: 0,
           recurring: true,
           recurringType: 'daily',
+          recurringTarget: 1,
         });
 
         onOpenChange(false);
@@ -94,18 +106,18 @@ export default function AddTaskModal({
     } finally {
       setIsSubmitting(false);
     }
-  }, [newTask, categories, onTaskCreated, onOpenChange]);
+  }, [newTask, calculatedRewards, onTaskCreated, onOpenChange]);
 
   const resetForm = () => {
     setNewTask({
       title: '',
       description: '',
-      categories: [{ categoryId: '', points: 50 }],
+      categoryId: '',
       difficulty: 'medium',
-      skillRewards: {},
       estimatedDuration: 0,
       recurring: true,
       recurringType: 'daily',
+      recurringTarget: 1,
     });
     setError(null);
   };
@@ -163,97 +175,31 @@ export default function AddTaskModal({
             />
           </div>
 
-          {/* Categorías y Puntos */}
-          <div className='space-y-3'>
-            {newTask.categories.map((cat, index) => (
-              <div key={index} className='grid grid-cols-2 gap-4'>
-                <div>
-                  <Label className='block text-sm font-display font-bold text-gray-800 mb-1'>
-                    🏷️ Categoría {index + 1} *
-                  </Label>
-                  <Select
-                    value={cat.categoryId}
-                    onValueChange={(categoryId) => {
-                      setNewTask((prev) => ({
-                        ...prev,
-                        categories: prev.categories.map((c, i) =>
-                          i === index ? { ...c, categoryId } : c
-                        ),
-                      }));
-                    }}
-                  >
-                    <NeoSelectTrigger>
-                      <SelectValue placeholder='Seleccionar categoría' />
-                    </NeoSelectTrigger>
-                    <NeoSelectContent>
-                      {categories.map((cat) => (
-                        <NeoSelectItem key={cat.id} value={cat.id}>
-                          {cat.icon} {cat.name}
-                        </NeoSelectItem>
-                      ))}
-                    </NeoSelectContent>
-                  </Select>
-                </div>
-
-                <div className='flex gap-2'>
-                  <div className='flex-1'>
-                    <Label className='block text-sm font-display font-bold text-gray-800 mb-1'>
-                      ⭐ Puntos
-                    </Label>
-                    <Input
-                      type='number'
-                      variant='neo'
-                      min='0'
-                      placeholder='50'
-                      value={cat.points}
-                      onChange={(e) => {
-                        setNewTask((prev) => ({
-                          ...prev,
-                          categories: prev.categories.map((c, i) =>
-                            i === index ? { ...c, points: parseInt(e.target.value) || 0 } : c
-                          ),
-                        }));
-                      }}
-                    />
-                  </div>
-
-                  {/* Botón para remover categoría (solo si hay más de una) */}
-                  {newTask.categories.length > 1 && (
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      onClick={() => {
-                        setNewTask((prev) => ({
-                          ...prev,
-                          categories: prev.categories.filter((_, i) => i !== index),
-                        }));
-                      }}
-                      className='mt-6 px-3 py-2 text-red-600 hover:text-red-700 hover:bg-red-50'
-                      title='Remover categoría'
-                    >
-                      ✕
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-
-            {/* Botón para agregar más categorías */}
-            <div className='text-center'>
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={() => {
-                  setNewTask((prev) => ({
-                    ...prev,
-                    categories: [...prev.categories, { categoryId: '', points: 50 }],
-                  }));
-                }}
-                className='text-blue-600 hover:text-blue-700 border-2 border-blue-300 hover:border-blue-400 font-display font-bold'
-              >
-                ➕ Agregar Categoría
-              </Button>
-            </div>
+          {/* Categoría */}
+          <div>
+            <Label className='block text-sm font-display font-bold text-gray-800 mb-2'>
+              🏷️ Categoría *
+            </Label>
+            <Select
+              value={newTask.categoryId}
+              onValueChange={(categoryId) => {
+                setNewTask((prev) => ({
+                  ...prev,
+                  categoryId,
+                }));
+              }}
+            >
+              <NeoSelectTrigger>
+                <SelectValue placeholder='Seleccionar categoría' />
+              </NeoSelectTrigger>
+              <NeoSelectContent>
+                {categories.map((cat) => (
+                  <NeoSelectItem key={cat.id} value={cat.id}>
+                    {cat.icon} {cat.name}
+                  </NeoSelectItem>
+                ))}
+              </NeoSelectContent>
+            </Select>
           </div>
 
           {/* Dificultad */}
@@ -298,7 +244,12 @@ export default function AddTaskModal({
                 onValueChange={(value) =>
                   setNewTask({
                     ...newTask,
-                    recurringType: value as 'daily' | 'weekly' | 'monthly',
+                    recurringType: value as
+                      | 'daily'
+                      | 'weekly'
+                      | 'monthly'
+                      | 'x_per_week'
+                      | 'x_per_month',
                   })
                 }
               >
@@ -309,9 +260,39 @@ export default function AddTaskModal({
                   <NeoSelectItem value='daily'>📅 Diaria</NeoSelectItem>
                   <NeoSelectItem value='weekly'>📆 Semanal</NeoSelectItem>
                   <NeoSelectItem value='monthly'>🗓️ Mensual</NeoSelectItem>
+                  <NeoSelectItem value='x_per_week'>💪 X veces por semana</NeoSelectItem>
+                  <NeoSelectItem value='x_per_month'>🎯 X veces por mes</NeoSelectItem>
                 </NeoSelectContent>
               </Select>
             </div>
+
+            {/* Campo condicional para target de recurrencia */}
+            {(newTask.recurringType === 'x_per_week' ||
+              newTask.recurringType === 'x_per_month') && (
+              <div>
+                <Label
+                  htmlFor='recurringTarget'
+                  className='text-sm font-display font-bold text-gray-800 mb-2'
+                >
+                  🎯 ¿Cuántas veces?
+                </Label>
+                <Input
+                  id='recurringTarget'
+                  type='number'
+                  variant='neo'
+                  min='1'
+                  max='30'
+                  placeholder='3'
+                  value={newTask.recurringTarget}
+                  onChange={(e) =>
+                    setNewTask({
+                      ...newTask,
+                      recurringTarget: parseInt(e.target.value) || 1,
+                    })
+                  }
+                />
+              </div>
+            )}
 
             <div>
               <Label
@@ -337,14 +318,36 @@ export default function AddTaskModal({
             </div>
           </div>
 
+          {/* Recompensas automáticas calculadas */}
+          {calculatedRewards && (
+            <div className='bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border-2 border-purple-200'>
+              <h4 className='font-display font-bold text-gray-800 mb-2 flex items-center gap-2'>
+                ✨ Recompensas Automáticas
+              </h4>
+              <div className='grid grid-cols-2 gap-3 text-sm'>
+                <div className='bg-white p-2 rounded border'>
+                  <span className='font-medium text-purple-600'>🪙 Monedas:</span>
+                  <span className='ml-1 font-bold'>{calculatedRewards.coinReward}</span>
+                </div>
+                <div className='bg-white p-2 rounded border'>
+                  <span className='font-medium text-blue-600'>⚡ XP Total:</span>
+                  <span className='ml-1 font-bold'>{calculatedRewards.totalXP}</span>
+                </div>
+              </div>
+              <div className='mt-2 text-xs text-gray-600'>
+                {formatXPBreakdown(calculatedRewards)}
+              </div>
+            </div>
+          )}
+
           {/* Error message */}
           {error && <div className='text-red-600 text-sm bg-red-50 p-3 rounded-lg'>{error}</div>}
 
           {/* Botones de acción */}
           <div className='flex gap-3 pt-4 border-t-2 border-gray-300'>
-            <Button 
-              variant='neo-outline' 
-              onClick={() => onOpenChange(false)} 
+            <Button
+              variant='neo-outline'
+              onClick={() => onOpenChange(false)}
               className='flex-1 font-display font-bold'
             >
               ❌ Cancelar
@@ -352,11 +355,7 @@ export default function AddTaskModal({
             <Button
               variant='neo-success'
               onClick={addTask}
-              disabled={
-                !newTask.title.trim() ||
-                !newTask.categories.some((cat) => cat.categoryId) ||
-                isSubmitting
-              }
+              disabled={!newTask.title.trim() || !newTask.categoryId || isSubmitting}
               className='flex-1 font-display font-bold'
             >
               {isSubmitting ? '🔄 Creando...' : '✨ Crear Tarea'}
