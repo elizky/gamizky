@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gamizky-v2'; // Incrementar versión para limpiar cache
+const CACHE_NAME = 'gamizky-v3'; // Incrementar versión para limpiar cache
 const urlsToCache = [
   '/',
   '/landing',
@@ -55,23 +55,33 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // NUNCA cachear API calls - siempre ir al network para datos frescos
+  if (event.request.url.includes('/api/')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Return cached version or fetch from network
+        // Para páginas HTML, siempre intentar network first para datos frescos
+        if (event.request.destination === 'document') {
+          return fetch(event.request).catch(() => {
+            // Solo usar cache si network falla
+            return response || new Response('Offline - no cached version available', {
+              status: 503,
+              statusText: 'Service Unavailable'
+            });
+          });
+        }
+        
+        // Para otros recursos (CSS, JS, imágenes), usar cache first
         if (response) {
           return response;
         }
         
         return fetch(event.request).catch((error) => {
           console.warn('Fetch failed for:', event.request.url, error);
-          // Return a basic response for failed requests
-          if (event.request.destination === 'document') {
-            return new Response('Service Worker: Resource not available offline', {
-              status: 503,
-              statusText: 'Service Unavailable'
-            });
-          }
         });
       })
   );
