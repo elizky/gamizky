@@ -10,10 +10,12 @@ export interface RecurringTask {
 }
 
 /**
- * Get the start of the week (Monday) for a given date
+ * Get the start of the week (Monday) for a given date (in local timezone)
  */
 export function getWeekStart(date: Date): Date {
-  const d = new Date(date);
+  // Convert to local date to avoid timezone issues
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  const d = new Date(localDate);
   const day = d.getDay();
   const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
   const monday = new Date(d.setDate(diff));
@@ -22,7 +24,7 @@ export function getWeekStart(date: Date): Date {
 }
 
 /**
- * Get the end of the week (Sunday) for a given date
+ * Get the end of the week (Sunday) for a given date (in local timezone)
  */
 export function getWeekEnd(date: Date): Date {
   const weekStart = getWeekStart(date);
@@ -33,29 +35,35 @@ export function getWeekEnd(date: Date): Date {
 }
 
 /**
- * Get the start of the month for a given date
+ * Get the start of the month for a given date (in local timezone)
  */
 export function getMonthStart(date: Date): Date {
-  const d = new Date(date);
-  return new Date(d.getFullYear(), d.getMonth(), 1, 0, 0, 0, 0);
+  // Convert to local date to avoid timezone issues
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return new Date(localDate.getFullYear(), localDate.getMonth(), 1, 0, 0, 0, 0);
 }
 
 /**
- * Get the end of the month for a given date
+ * Get the end of the month for a given date (in local timezone)
  */
 export function getMonthEnd(date: Date): Date {
-  const d = new Date(date);
-  return new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+  // Convert to local date to avoid timezone issues
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return new Date(localDate.getFullYear(), localDate.getMonth() + 1, 0, 23, 59, 59, 999);
 }
 
 /**
- * Check if two dates are the same day
+ * Check if two dates are the same day (considering local timezone)
  */
 export function isSameDay(date1: Date, date2: Date): boolean {
+  // Convert to local date strings to avoid timezone issues
+  const d1 = new Date(date1.getTime() - date1.getTimezoneOffset() * 60000);
+  const d2 = new Date(date2.getTime() - date2.getTimezoneOffset() * 60000);
+  
   return (
-    date1.getFullYear() === date2.getFullYear() &&
-    date1.getMonth() === date2.getMonth() &&
-    date1.getDate() === date2.getDate()
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
   );
 }
 
