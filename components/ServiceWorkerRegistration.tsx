@@ -4,6 +4,22 @@ import { useEffect } from 'react';
 
 export default function ServiceWorkerRegistration() {
   useEffect(() => {
+    // TEMPORALMENTE DESHABILITADO: Service Worker causando errores 404 con chunks de Next.js
+    // TODO: Reactivar una vez solucionados los problemas de cache
+    
+    // Desregistrar cualquier SW existente para limpiar problemas de cache
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
+          registration.unregister();
+          console.log('SW unregistered - temporarily disabled');
+        });
+      });
+    }
+    return; // Early return - no registrar SW por ahora
+    
+    // Código original comentado temporalmente:
+    /*
     // Deshabilitar Service Worker durante desarrollo
     if (process.env.NODE_ENV === 'development') {
       // Desregistrar cualquier SW existente durante desarrollo
@@ -17,6 +33,7 @@ export default function ServiceWorkerRegistration() {
       }
       return;
     }
+    */
     
     if (
       typeof window !== 'undefined' &&

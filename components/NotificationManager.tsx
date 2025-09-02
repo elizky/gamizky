@@ -40,6 +40,12 @@ export default function NotificationManager({ userId }: NotificationManagerProps
 
   const subscribeUser = async () => {
     try {
+      // TEMPORALMENTE DESHABILITADO: Service Worker no disponible
+      console.warn('Push notifications temporarily disabled - Service Worker not available');
+      return;
+      
+      // Código original comentado temporalmente:
+      /*
       const registration = await navigator.serviceWorker.ready;
       
       // Generar VAPID key (en producción, esto debería venir del servidor)
@@ -67,6 +73,7 @@ export default function NotificationManager({ userId }: NotificationManagerProps
       }
 
       console.log('Usuario suscrito a notificaciones push');
+      */
     } catch (error) {
       console.error('Error subscribing to push notifications:', error);
     }
