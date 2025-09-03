@@ -1,6 +1,7 @@
 /**
  * Utilities for handling recurring tasks logic
  */
+import { isSameDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 
 export interface RecurringTask {
   completions: Date[];
@@ -9,77 +10,21 @@ export interface RecurringTask {
   recurringTarget?: number | null;
 }
 
-/**
- * Get the start of the week (Monday) for a given date (in local timezone)
- */
-export function getWeekStart(date: Date): Date {
-  // Convert to local date to avoid timezone issues
-  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-  const d = new Date(localDate);
-  const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
-  const monday = new Date(d.setDate(diff));
-  monday.setHours(0, 0, 0, 0);
-  return monday;
-}
+// Usar funciones de date-fns que manejan automáticamente la zona horaria local
 
 /**
- * Get the end of the week (Sunday) for a given date (in local timezone)
- */
-export function getWeekEnd(date: Date): Date {
-  const weekStart = getWeekStart(date);
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 6);
-  weekEnd.setHours(23, 59, 59, 999);
-  return weekEnd;
-}
-
-/**
- * Get the start of the month for a given date (in local timezone)
- */
-export function getMonthStart(date: Date): Date {
-  // Convert to local date to avoid timezone issues
-  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-  return new Date(localDate.getFullYear(), localDate.getMonth(), 1, 0, 0, 0, 0);
-}
-
-/**
- * Get the end of the month for a given date (in local timezone)
- */
-export function getMonthEnd(date: Date): Date {
-  // Convert to local date to avoid timezone issues
-  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-  return new Date(localDate.getFullYear(), localDate.getMonth() + 1, 0, 23, 59, 59, 999);
-}
-
-/**
- * Check if two dates are the same day (considering local timezone)
- */
-export function isSameDay(date1: Date, date2: Date): boolean {
-  // Convert to local date strings to avoid timezone issues
-  const d1 = new Date(date1.getTime() - date1.getTimezoneOffset() * 60000);
-  const d2 = new Date(date2.getTime() - date2.getTimezoneOffset() * 60000);
-  
-  return (
-    d1.getFullYear() === d2.getFullYear() &&
-    d1.getMonth() === d2.getMonth() &&
-    d1.getDate() === d2.getDate()
-  );
-}
-
-/**
- * Get completions for the current day
+ * Get completions for the current day (using date-fns)
  */
 export function getTodayCompletions(completions: Date[], today: Date = new Date()): Date[] {
   return completions.filter(completion => isSameDay(completion, today));
 }
 
 /**
- * Get completions for the current week
+ * Get completions for the current week (using date-fns)
  */
 export function getThisWeekCompletions(completions: Date[], today: Date = new Date()): Date[] {
-  const weekStart = getWeekStart(today);
-  const weekEnd = getWeekEnd(today);
+  const weekStart = startOfWeek(today, { weekStartsOn: 1 }); // Lunes
+  const weekEnd = endOfWeek(today, { weekStartsOn: 1 }); // Domingo
   
   return completions.filter(completion => 
     completion >= weekStart && completion <= weekEnd
@@ -87,11 +32,11 @@ export function getThisWeekCompletions(completions: Date[], today: Date = new Da
 }
 
 /**
- * Get completions for the current month
+ * Get completions for the current month (using date-fns)
  */
 export function getThisMonthCompletions(completions: Date[], today: Date = new Date()): Date[] {
-  const monthStart = getMonthStart(today);
-  const monthEnd = getMonthEnd(today);
+  const monthStart = startOfMonth(today);
+  const monthEnd = endOfMonth(today);
   
   return completions.filter(completion => 
     completion >= monthStart && completion <= monthEnd

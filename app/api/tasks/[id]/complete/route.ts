@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import { isTaskAvailableToday } from '@/lib/recurring';
 import { getRecurringXPMultiplier } from '@/lib/gamification';
 
+
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
@@ -42,14 +43,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     // Marcar la tarea como completada y agregar al array de completions
+    // Usar zona horaria local (Argentina) para evitar problemas de UTC
     const now = new Date();
+    const localDate = new Date(now.toLocaleString("en-US", {timeZone: "America/Argentina/Buenos_Aires"}));
+    
     await db.task.update({
       where: { id: taskId },
       data: {
         completed: true,
-        completedAt: now,
+        completedAt: localDate,
         completions: {
-          push: now,
+          push: localDate,
         },
       },
     });
