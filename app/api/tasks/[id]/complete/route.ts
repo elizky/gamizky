@@ -94,8 +94,8 @@ async function applyTaskRewards(
     where: { userId },
   });
 
-  // Crear habilidades faltantes si no existen
-  const skillTypes = ['physical', 'wisdom', 'mental', 'social', 'creativity', 'discipline'];
+  // Crear habilidades faltantes si no existen (5 habilidades principales)
+  const skillTypes = ['physical', 'wisdom', 'mental', 'social', 'creativity'];
   for (const skillType of skillTypes) {
     if (!userSkills.find((s) => s.skillType === skillType)) {
       await db.userSkill.create({
@@ -173,8 +173,9 @@ async function applyTaskRewards(
     },
   });
 
-  // Recalcular y actualizar el nivel basado en el XP total
-  const newLevel = Math.floor(updatedUserData.totalXP / 200) + 1;
+  // Recalcular y actualizar el nivel basado en el XP total usando nueva fórmula
+  const { calculateLevel } = await import('@/lib/gamification');
+  const newLevel = calculateLevel(updatedUserData.totalXP);
   if (newLevel !== updatedUserData.level) {
     await db.user.update({
       where: { id: userId },

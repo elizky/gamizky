@@ -18,12 +18,13 @@
 - **Recompensas automáticas** (XP + Monedas) por completar tareas
 - **Tareas recurrentes** (diarias, semanales, mensuales)
 
-### 🎯 **Gamificación Básica Efectiva**
-- **Sistema de XP y niveles** progresivo
-- **Monedas virtuales** como recompensa
-- **Racha de días consecutivos** para mantener consistencia
-- **Avatares y personajes** desbloqueables
-- **Sistema de habilidades** con progreso individual
+### 🎯 **Sistema de Gamificación Refinado**
+- **Sistema de XP y niveles** con curva RPG real (200 × N^1.4)
+- **5 habilidades principales** (Físico, Sabiduría, Mental, Social, Creatividad)
+- **Bonificaciones balanceadas** por duración (10/20/30/40 XP fijos)
+- **Monedas proporcionales** (XP × 0.1) para evitar inflación
+- **Anti-grindeo** en tareas recurrentes (100% primera vez, 10% siguientes)
+- **Progresión exponencial** que engancha al principio y exige constancia después
 
 ### 📊 **Dashboard de Estadísticas**
 - **Resumen de actividad** (tareas completadas, pendientes, racha)
@@ -72,6 +73,61 @@ Character & UserSkill {
   // Sistema de personajes y habilidades
 }
 ```
+
+## 🎮 **Sistema de Gamificación Detallado**
+
+### **📊 Cálculo de XP por Tarea**
+```javascript
+XP Final = (Base XP + Bonus Duración) × Multiplicador Dificultad
+```
+
+**Valores base por dificultad:**
+- 🟢 **Fácil**: 25 XP base
+- 🟡 **Medio**: 50 XP base  
+- 🔴 **Difícil**: 100 XP base
+
+**Bonificaciones por duración (fijas):**
+- **Hasta 30 min**: +10 XP
+- **31 a 60 min**: +20 XP
+- **61 a 120 min**: +30 XP
+- **Más de 120 min**: +40 XP (tope)
+
+**Multiplicadores de dificultad:**
+- 🟢 **Fácil**: ×1.0
+- 🟡 **Medio**: ×1.5
+- 🔴 **Difícil**: ×2.0
+
+### **📈 Sistema de Niveles**
+**Fórmula exponencial:** `XP Requerido = 200 × N^1.4`
+
+**Progresión de niveles:**
+- **Nivel 1**: 0-200 XP
+- **Nivel 2**: 201-528 XP
+- **Nivel 5**: 1,500-1,904 XP
+- **Nivel 10**: ~5,000-5,024 XP
+- **Nivel 20**: ~26,000 XP
+
+### **🎯 Habilidades (5 Principales)**
+- 💪 **Físico** - Ejercicio, deportes, actividades físicas
+- 📚 **Sabiduría** - Lectura, estudio, aprendizaje
+- 🧠 **Mental** - Resolución de problemas, lógica, análisis
+- 👥 **Social** - Interacciones, networking, comunicación
+- 🎨 **Creatividad** - Arte, música, escritura, diseño
+
+### **🪙 Sistema de Monedas**
+**Fórmula simple:** `Monedas = XP Final × 0.1`
+
+**Ejemplos:**
+- Tarea fácil 20min (35 XP) → 4 monedas
+- Tarea media 45min (105 XP) → 11 monedas
+- Tarea difícil 90min (260 XP) → 26 monedas
+
+### **⚖️ Anti-Grindeo (Tareas Recurrentes)**
+- **Primera completada del período**: 100% XP
+- **Siguientes completadas**: 10% XP
+- **Diarias**: Resetean cada día
+- **Semanales**: Resetean cada semana
+- **Mensuales**: Siempre 100% XP
 
 ## 🎨 **Sistema de Diseño Neo-Brutalist**
 

@@ -16,8 +16,8 @@ async function setupUser() {
 
     console.log(`👤 Configurando usuario: ${user.name || user.email}`);
 
-    // Crear habilidades iniciales para el usuario
-    const skillTypes = ['physical', 'wisdom', 'mental', 'social', 'creativity', 'discipline'];
+    // Crear habilidades iniciales para el usuario (5 habilidades principales)
+    const skillTypes = ['physical', 'wisdom', 'mental', 'social', 'creativity'];
 
     for (const skillType of skillTypes) {
       await prisma.userSkill.upsert({

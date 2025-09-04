@@ -5,121 +5,216 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seeding...');
 
-  // Crear categorías de tareas
-  console.log('📝 Creating task categories...');
-  const taskCategories = await Promise.all([
-    prisma.taskCategory.create({
-      data: {
+  // Crear o actualizar categorías de tareas con el nuevo framework
+  console.log('📝 Creating/updating task categories...');
+  await Promise.all([
+    prisma.taskCategory.upsert({
+      where: { id: 'physical' },
+      update: {
+        name: 'Físico',
+        icon: '💪',
+        color: 'bg-blue-500',
+        description: 'El Guerrero - Mi cuerpo es mi primera herramienta de batalla',
+        primarySkill: 'physical',
+        subcategories: [
+          'Cardio',
+          'Fuerza',
+          'Flexibilidad',
+          'Deportes',
+          'Baile',
+          'Caminata',
+          'Descanso',
+          'Hábitos saludables',
+        ],
+      },
+      create: {
         id: 'physical',
         name: 'Físico',
         icon: '💪',
-        color: 'bg-red-500',
-        description: 'Ejercicio, deporte y actividad física',
+        color: 'bg-blue-500',
+        description: 'El Guerrero - Mi cuerpo es mi primera herramienta de batalla',
         primarySkill: 'physical',
-        subcategories: ['Cardio', 'Fuerza', 'Flexibilidad', 'Deportes', 'Caminar', 'Salud'],
+        subcategories: [
+          'Cardio',
+          'Fuerza',
+          'Flexibilidad',
+          'Deportes',
+          'Baile',
+          'Caminata',
+          'Descanso',
+          'Hábitos saludables',
+        ],
       },
     }),
-    prisma.taskCategory.create({
-      data: {
+    prisma.taskCategory.upsert({
+      where: { id: 'wisdom' },
+      update: {
+        name: 'Sabiduría',
+        icon: '📚',
+        color: 'bg-green-500',
+        description: 'El Sabio - El conocimiento no me da poder. Me da libertad',
+        primarySkill: 'wisdom',
+        subcategories: [
+          'Lectura',
+          'Cursos',
+          'Idiomas',
+          'Investigación',
+          'Escritura',
+          'Documentales',
+          'Podcasts',
+          'Ciencia',
+          'Filosofía',
+          'Cultura general',
+        ],
+      },
+      create: {
         id: 'wisdom',
         name: 'Sabiduría',
         icon: '📚',
-        color: 'bg-blue-500',
-        description: 'Aprendizaje, lectura y conocimiento',
+        color: 'bg-green-500',
+        description: 'El Sabio - El conocimiento no me da poder. Me da libertad',
         primarySkill: 'wisdom',
-        subcategories: ['Lectura', 'Cursos', 'Documentales', 'Investigación', 'Idiomas'],
+        subcategories: [
+          'Lectura',
+          'Cursos',
+          'Idiomas',
+          'Investigación',
+          'Escritura',
+          'Documentales',
+          'Podcasts',
+          'Ciencia',
+          'Filosofía',
+          'Cultura general',
+        ],
       },
     }),
-    prisma.taskCategory.create({
-      data: {
+    prisma.taskCategory.upsert({
+      where: { id: 'mental' },
+      update: {
+        name: 'Mental',
+        icon: '🧠',
+        color: 'bg-purple-500',
+        description: 'El Monje - Pienso. Luego respiro. Luego actúo',
+        primarySkill: 'mental',
+        subcategories: [
+          'Meditación',
+          'Mindfulness',
+          'Ajedrez',
+          'Rompecabezas',
+          'Lógica',
+          'Programación',
+          'Journaling',
+          'Planeamiento estratégico',
+        ],
+      },
+      create: {
         id: 'mental',
         name: 'Mental',
         icon: '🧠',
         color: 'bg-purple-500',
-        description: 'Concentración, memoria y agilidad mental',
+        description: 'El Monje - Pienso. Luego respiro. Luego actúo',
         primarySkill: 'mental',
-        subcategories: ['Meditación', 'Puzzles', 'Matemáticas', 'Programación', 'Estrategia'],
+        subcategories: [
+          'Meditación',
+          'Mindfulness',
+          'Ajedrez',
+          'Rompecabezas',
+          'Lógica',
+          'Programación',
+          'Journaling',
+          'Planeamiento estratégico',
+        ],
       },
     }),
-    prisma.taskCategory.create({
-      data: {
+    prisma.taskCategory.upsert({
+      where: { id: 'social' },
+      update: {
+        name: 'Social',
+        icon: '👥',
+        color: 'bg-pink-500',
+        description: 'La Tejedora - Los demás no son otros: son extensiones de mí',
+        primarySkill: 'social',
+        subcategories: [
+          'Amistad',
+          'Pareja',
+          'Networking',
+          'Ayuda social',
+          'Escucha activa',
+          'Eventos',
+          'Familia',
+          'Citas',
+        ],
+      },
+      create: {
         id: 'social',
         name: 'Social',
         icon: '👥',
-        color: 'bg-green-500',
-        description: 'Relaciones interpersonales y comunicación',
+        color: 'bg-pink-500',
+        description: 'La Tejedora - Los demás no son otros: son extensiones de mí',
         primarySkill: 'social',
-        subcategories: ['Familia', 'Amigos', 'Red profesional', 'Voluntariado', 'Comunidad'],
+        subcategories: [
+          'Amistad',
+          'Pareja',
+          'Networking',
+          'Ayuda social',
+          'Escucha activa',
+          'Eventos',
+          'Familia',
+          'Citas',
+        ],
       },
     }),
-    prisma.taskCategory.create({
-      data: {
+    prisma.taskCategory.upsert({
+      where: { id: 'creativity' },
+      update: {
+        name: 'Creatividad',
+        icon: '🎨',
+        color: 'bg-orange-500',
+        description: 'La Musa - Todo lo que veo, puede ser otra cosa',
+        primarySkill: 'creativity',
+        subcategories: [
+          'Dibujo',
+          'Música',
+          'Escritura',
+          'Cocina',
+          'Diseño',
+          'Teatro',
+          'Fotografía',
+          'Manualidades',
+          'UI',
+          'Poesía',
+        ],
+      },
+      create: {
         id: 'creativity',
         name: 'Creatividad',
         icon: '🎨',
-        color: 'bg-yellow-500',
-        description: 'Arte, música y expresión creativa',
+        color: 'bg-orange-500',
+        description: 'La Musa - Todo lo que veo, puede ser otra cosa',
         primarySkill: 'creativity',
-        subcategories: ['Dibujo', 'Música', 'Escritura', 'Fotografía', 'Manualidades'],
-      },
-    }),
-    prisma.taskCategory.create({
-      data: {
-        id: 'discipline',
-        name: 'Disciplina',
-        icon: '🎯',
-        color: 'bg-gray-500',
-        description: 'Organización, productividad y hábitos',
-        primarySkill: 'discipline',
-        subcategories: ['Limpieza', 'Organización', 'Finanzas', 'Rutinas', 'Planificación'],
-      },
-    }),
-  ]);
-
-  // Crear personajes básicos
-  console.log('🎭 Creating characters...');
-  const characters = await Promise.all([
-    prisma.character.create({
-      data: {
-        id: 'default',
-        name: 'Aventurero',
-        avatar: '🎮',
-        unlocked: true,
-        cost: null,
-      },
-    }),
-    prisma.character.create({
-      data: {
-        id: 'wizard',
-        name: 'Mago',
-        avatar: '🧙‍♂️',
-        unlocked: false,
-        cost: 500,
-      },
-    }),
-    prisma.character.create({
-      data: {
-        id: 'warrior',
-        name: 'Guerrero',
-        avatar: '⚔️',
-        unlocked: false,
-        cost: 300,
-      },
-    }),
-    prisma.character.create({
-      data: {
-        id: 'scholar',
-        name: 'Erudito',
-        avatar: '📚',
-        unlocked: false,
-        cost: 400,
+        subcategories: [
+          'Dibujo',
+          'Música',
+          'Escritura',
+          'Cocina',
+          'Diseño',
+          'Teatro',
+          'Fotografía',
+          'Manualidades',
+          'UI',
+          'Poesía',
+        ],
       },
     }),
   ]);
 
-  console.log('✅ Database seeding completed successfully!');
-  console.log(`📝 Created ${taskCategories.length} task categories`);
-  console.log(`🎭 Created ${characters.length} characters`);
+  console.log('✅ Task categories created/updated successfully');
+
+    // Las tareas iniciales se crean solo para usuarios específicos
+  // usando el script: npm run setup:user
+  console.log('📋 Initial tasks will be created per user using setup:user script');
+
+  console.log('🎉 Database seeding completed successfully!');
 }
 
 main()

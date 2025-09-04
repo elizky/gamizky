@@ -101,7 +101,7 @@ model TaskCategory {
   icon          String
   color         String
   description   String
-  primarySkill  String // "physical", "wisdom", "mental", "social", "creativity", "discipline"
+  primarySkill  String // "physical", "wisdom", "mental", "social", "creativity"
   subcategories String[] // Array of subcategory names
 
   // Relations

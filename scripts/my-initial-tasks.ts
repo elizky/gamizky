@@ -138,9 +138,11 @@ async function loadMyInitialTasks() {
   try {
     console.log('🌱 Cargando tus tareas iniciales personalizadas...');
 
-    // Obtener categorías y usuario
+    // Obtener categorías y usuario específico
     const categories = await db.taskCategory.findMany();
-    const user = await db.user.findFirst();
+    const user = await db.user.findUnique({
+      where: { id: 'cmf0gl7k6000016tocb9fy2k4' }
+    });
 
     if (!user) {
       console.log('❌ No se encontró usuario');
@@ -199,7 +201,7 @@ async function loadMyInitialTasks() {
 }
 
 // Exportar para uso externo
-export { MY_INITIAL_TASKS };
+export { MY_INITIAL_TASKS, loadMyInitialTasks as createInitialTasks };
 
 // Ejecutar si se llama directamente
 if (require.main === module) {

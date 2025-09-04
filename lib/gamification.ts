@@ -42,13 +42,17 @@ export function calculateTaskRewards(
   // Apply difficulty multiplier
   const difficultyMultiplier = difficultyMultipliers[difficulty];
   
-  // Duration bonus: +1 XP per minute, with diminishing returns after 60 minutes
+  // Duration bonus: Fixed bonuses to avoid OP long tasks
   let durationBonus = 0;
   if (estimatedDuration > 0) {
-    if (estimatedDuration <= 60) {
-      durationBonus = estimatedDuration * 1; // 1 XP per minute
+    if (estimatedDuration <= 30) {
+      durationBonus = 10; // Hasta 30 min → +10 XP
+    } else if (estimatedDuration <= 60) {
+      durationBonus = 20; // 31 a 60 min → +20 XP
+    } else if (estimatedDuration <= 120) {
+      durationBonus = 30; // 61 a 120 min → +30 XP
     } else {
-      durationBonus = 60 + (estimatedDuration - 60) * 0.5; // 0.5 XP per minute after 60
+      durationBonus = 40; // Más de 120 min → +40 XP (tope)
     }
   }
 
@@ -58,23 +62,17 @@ export function calculateTaskRewards(
   // Give all XP to the primary skill only
   const skillRewards: Record<string, number> = {};
   
-  // All available skills initialized to 0
-  const allSkills = ['physical', 'wisdom', 'mental', 'social', 'creativity', 'discipline'];
+  // 5 habilidades principales
+  const allSkills = ['physical', 'wisdom', 'mental', 'social', 'creativity'];
   allSkills.forEach(skill => {
     skillRewards[skill] = 0;
   });
   
-  // Assign all XP to primary skill
+  // Assign all XP to primary skill (for now, later we can add proportional distribution)
   skillRewards[primarySkill] = finalXP;
 
-  // Calculate coin reward based on difficulty and duration
-  const baseCoinsByDifficulty = {
-    easy: 10,
-    medium: 25,
-    hard: 50
-  };
-  
-  const coinReward = baseCoinsByDifficulty[difficulty] + Math.round(estimatedDuration / 10);
+  // Calculate coin reward: XP_final * 0.1
+  const coinReward = Math.round(finalXP * 0.1);
 
   return {
     totalXP: finalXP,
@@ -149,18 +147,26 @@ export function getDifficultyInfo(difficulty: 'easy' | 'medium' | 'hard') {
 }
 
 /**
- * Calculate level from total XP
+ * Calculate XP required for a specific level using formula: 200 * N^1.4
+ */
+export function getXPRequiredForLevel(level: number): number {
+  return Math.round(200 * Math.pow(level, 1.4));
+}
+
+/**
+ * Calculate level from total XP using inverse formula
  */
 export function calculateLevel(totalXP: number): number {
-  // Level formula: level = floor(totalXP / 200) + 1
-  return Math.floor(totalXP / 200) + 1;
+  // Inverse of 200 * N^1.4: N = (totalXP / 200)^(1/1.4)
+  const level = Math.pow(totalXP / 200, 1 / 1.4);
+  return Math.floor(level) + 1;
 }
 
 /**
  * Calculate XP needed for next level
  */
 export function getXPForNextLevel(currentLevel: number): number {
-  return currentLevel * 200;
+  return getXPRequiredForLevel(currentLevel);
 }
 
 /**
@@ -173,10 +179,11 @@ export function getLevelProgress(totalXP: number): {
   progressPercentage: number;
 } {
   const currentLevel = calculateLevel(totalXP);
-  const xpForCurrentLevel = (currentLevel - 1) * 200;
+  const xpForCurrentLevel = getXPRequiredForLevel(currentLevel - 1);
+  const xpForNextLevel = getXPRequiredForLevel(currentLevel);
   const xpInCurrentLevel = totalXP - xpForCurrentLevel;
-  const xpNeededForNext = 200 - xpInCurrentLevel;
-  const progressPercentage = (xpInCurrentLevel / 200) * 100;
+  const xpNeededForNext = xpForNextLevel - totalXP;
+  const progressPercentage = (xpInCurrentLevel / (xpForNextLevel - xpForCurrentLevel)) * 100;
 
   return {
     currentLevel,

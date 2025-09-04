@@ -49,7 +49,7 @@ export const categorySchema = z.object({
   color: z.string()
     .min(1, 'El color es requerido')
     .regex(/^bg-\w+-\d+$/, 'El color debe ser una clase de Tailwind válida'),
-  primarySkill: z.enum(['physical', 'wisdom', 'mental', 'social', 'creativity', 'discipline']),
+  primarySkill: z.enum(['physical', 'wisdom', 'mental', 'social', 'creativity']),
   subcategories: z.array(z.string()).default([]),
 });
 

@@ -15,6 +15,9 @@ import {
 } from '../ui/select';
 import { Label } from '../ui/label';
 import { Dialog, NeoDialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Tabs, TabsContent, NeoTabsList, NeoTabsTrigger } from '../ui/tabs';
+import ActivitySuggestions from '../ActivitySuggestions';
+import type { ActivityDefinition } from '@/lib/activities';
 
 interface AddTaskModalProps {
   open: boolean;
@@ -31,6 +34,7 @@ export default function AddTaskModal({
 }: AddTaskModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'manual' | 'suggestions'>('suggestions');
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -57,6 +61,31 @@ export default function AddTaskModal({
       primaryCategory.primarySkill
     );
   }, [newTask.difficulty, newTask.estimatedDuration, newTask.categoryId, categories]);
+
+  // Handle activity selection from suggestions
+  const handleActivitySelect = useCallback(
+    (activity: ActivityDefinition) => {
+      // Find the category that matches the activity's skill
+      const matchingCategory = categories.find((cat) => cat.primarySkill === activity.skill);
+
+      if (matchingCategory) {
+        setNewTask((prev) => ({
+          ...prev,
+          title: activity.name,
+          description: activity.description,
+          categoryId: matchingCategory.id,
+          difficulty: activity.difficulty,
+          estimatedDuration: activity.estimatedDuration,
+          recurring: activity.isRecurring || false,
+          recurringType: activity.recurringType || 'daily',
+        }));
+
+        // Switch to manual tab to show the filled form
+        setActiveTab('manual');
+      }
+    },
+    [categories]
+  );
 
   const addTask = useCallback(async () => {
     if (!newTask.title.trim() || !newTask.categoryId || !calculatedRewards) return;
@@ -131,237 +160,231 @@ export default function AddTaskModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <NeoDialogContent className='max-w-2xl max-h-[90vh] overflow-y-auto'>
+      <NeoDialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
           <DialogTitle className='text-2xl font-display font-black text-gray-800 mb-4'>
             ✨ Agregar Nueva Tarea
           </DialogTitle>
         </DialogHeader>
 
-        <div className='space-y-4'>
-          {/* Título */}
-          <div>
-            <Label
-              htmlFor='title'
-              className='block text-sm font-display font-bold text-gray-800 mb-2'
-            >
-              📝 Título *
-            </Label>
-            <Input
-              id='title'
-              type='text'
-              variant='neo'
-              placeholder='Ej: Hacer ejercicio 30 minutos'
-              value={newTask.title}
-              onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-            />
-          </div>
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as 'manual' | 'suggestions')}
+        >
+          <NeoTabsList className='grid w-full grid-cols-2'>
+            <NeoTabsTrigger value='suggestions'>🎯 Sugerencias</NeoTabsTrigger>
+            <NeoTabsTrigger value='manual'>✏️ Manual</NeoTabsTrigger>
+          </NeoTabsList>
 
-          {/* Descripción */}
-          <div>
-            <Label
-              htmlFor='description'
-              className='block text-sm font-display font-bold text-gray-800 mb-2'
-            >
-              📄 Descripción
-            </Label>
-            <Input
-              id='description'
-              type='text'
-              variant='neo'
-              placeholder='Descripción opcional de la tarea'
-              value={newTask.description}
-              onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-            />
-          </div>
-
-          {/* Categoría */}
-          <div>
-            <Label className='block text-sm font-display font-bold text-gray-800 mb-2'>
-              🏷️ Categoría *
-            </Label>
-            <Select
-              value={newTask.categoryId}
-              onValueChange={(categoryId) => {
-                setNewTask((prev) => ({
-                  ...prev,
-                  categoryId,
-                }));
-              }}
-            >
-              <NeoSelectTrigger>
-                <SelectValue placeholder='Seleccionar categoría' />
-              </NeoSelectTrigger>
-              <NeoSelectContent>
-                {categories.map((cat) => (
-                  <NeoSelectItem key={cat.id} value={cat.id}>
-                    {cat.icon} {cat.name}
-                  </NeoSelectItem>
-                ))}
-              </NeoSelectContent>
-            </Select>
-          </div>
-
-          {/* Dificultad */}
-          <div>
-            <Label
-              htmlFor='difficulty'
-              className='block text-sm font-display font-bold text-gray-800 mb-2'
-            >
-              🎯 Dificultad
-            </Label>
-            <Select
-              value={newTask.difficulty}
-              onValueChange={(value) =>
-                setNewTask({
-                  ...newTask,
-                  difficulty: value as 'easy' | 'medium' | 'hard',
-                })
+          <TabsContent value='suggestions' className='mt-4'>
+            <ActivitySuggestions
+              onSelectActivity={handleActivitySelect}
+              selectedCategorySkill={
+                categories.find((c) => c.id === newTask.categoryId)?.primarySkill
               }
-            >
-              <NeoSelectTrigger>
-                <SelectValue />
-              </NeoSelectTrigger>
-              <NeoSelectContent>
-                <NeoSelectItem value='easy'>🟢 Fácil</NeoSelectItem>
-                <NeoSelectItem value='medium'>🟡 Medio</NeoSelectItem>
-                <NeoSelectItem value='hard'>🔴 Difícil</NeoSelectItem>
-              </NeoSelectContent>
-            </Select>
-          </div>
+            />
+          </TabsContent>
 
-          {/* Recurrencia y Duración */}
-          <div className='grid grid-cols-2 gap-4'>
-            <div>
-              <Label
-                htmlFor='recurringType'
-                className='block text-sm font-display font-bold text-gray-800 mb-2'
-              >
-                🔄 Recurrencia
-              </Label>
-              <Select
-                value={newTask.recurringType}
-                onValueChange={(value) =>
-                  setNewTask({
-                    ...newTask,
-                    recurringType: value as
-                      | 'daily'
-                      | 'weekly'
-                      | 'monthly'
-                      | 'x_per_week'
-                      | 'x_per_month',
-                  })
-                }
-              >
-                <NeoSelectTrigger>
-                  <SelectValue />
-                </NeoSelectTrigger>
-                <NeoSelectContent>
-                  <NeoSelectItem value='daily'>📅 Diaria</NeoSelectItem>
-                  <NeoSelectItem value='weekly'>📆 Semanal</NeoSelectItem>
-                  <NeoSelectItem value='monthly'>🗓️ Mensual</NeoSelectItem>
-                  <NeoSelectItem value='x_per_week'>💪 X veces por semana</NeoSelectItem>
-                  <NeoSelectItem value='x_per_month'>🎯 X veces por mes</NeoSelectItem>
-                </NeoSelectContent>
-              </Select>
-            </div>
-
-            {/* Campo condicional para target de recurrencia */}
-            {(newTask.recurringType === 'x_per_week' ||
-              newTask.recurringType === 'x_per_month') && (
+          <TabsContent value='manual' className='mt-4'>
+            <div className='space-y-4'>
+              {/* Título */}
               <div>
                 <Label
-                  htmlFor='recurringTarget'
-                  className='text-sm font-display font-bold text-gray-800 mb-2'
+                  htmlFor='title'
+                  className='block text-sm font-display font-bold text-gray-800 mb-2'
                 >
-                  🎯 ¿Cuántas veces?
+                  📝 Título *
                 </Label>
                 <Input
-                  id='recurringTarget'
-                  type='number'
+                  id='title'
+                  type='text'
                   variant='neo'
-                  min='1'
-                  max='30'
-                  placeholder='3'
-                  value={newTask.recurringTarget}
-                  onChange={(e) =>
-                    setNewTask({
-                      ...newTask,
-                      recurringTarget: parseInt(e.target.value) || 1,
-                    })
-                  }
+                  placeholder='Ej: Hacer ejercicio 30 minutos'
+                  value={newTask.title}
+                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
                 />
               </div>
-            )}
 
-            <div>
-              <Label
-                htmlFor='duration'
-                className='text-sm font-display font-bold text-gray-800 mb-2'
-              >
-                ⏱️ Duración
-              </Label>
-              <Input
-                id='duration'
-                type='number'
-                variant='neo'
-                min='0'
-                placeholder='30'
-                value={newTask.estimatedDuration}
-                onChange={(e) =>
-                  setNewTask({
-                    ...newTask,
-                    estimatedDuration: parseInt(e.target.value) || 0,
-                  })
-                }
-              />
-            </div>
-          </div>
+              {/* Descripción */}
+              <div>
+                <Label
+                  htmlFor='description'
+                  className='block text-sm font-display font-bold text-gray-800 mb-2'
+                >
+                  📄 Descripción
+                </Label>
+                <Input
+                  id='description'
+                  type='text'
+                  variant='neo'
+                  placeholder='Descripción opcional de la tarea'
+                  value={newTask.description}
+                  onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                />
+              </div>
 
-          {/* Recompensas automáticas calculadas */}
-          {calculatedRewards && (
-            <div className='bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border-2 border-purple-200'>
-              <h4 className='font-display font-bold text-gray-800 mb-2 flex items-center gap-2'>
-                ✨ Recompensas Automáticas
-              </h4>
-              <div className='grid grid-cols-2 gap-3 text-sm'>
-                <div className='bg-white p-2 rounded border'>
-                  <span className='font-medium text-purple-600'>🪙 Monedas:</span>
-                  <span className='ml-1 font-bold'>{calculatedRewards.coinReward}</span>
+              {/* Categoría */}
+              <div>
+                <Label className='block text-sm font-display font-bold text-gray-800 mb-2'>
+                  🏷️ Categoría *
+                </Label>
+                <Select
+                  value={newTask.categoryId}
+                  onValueChange={(categoryId) => {
+                    setNewTask((prev) => ({
+                      ...prev,
+                      categoryId,
+                    }));
+                  }}
+                >
+                  <NeoSelectTrigger>
+                    <SelectValue placeholder='Seleccionar categoría' />
+                  </NeoSelectTrigger>
+                  <NeoSelectContent>
+                    {categories.map((cat) => (
+                      <NeoSelectItem key={cat.id} value={cat.id}>
+                        {cat.icon} {cat.name}
+                      </NeoSelectItem>
+                    ))}
+                  </NeoSelectContent>
+                </Select>
+              </div>
+
+              {/* Dificultad */}
+              <div>
+                <Label
+                  htmlFor='difficulty'
+                  className='block text-sm font-display font-bold text-gray-800 mb-2'
+                >
+                  🎯 Dificultad
+                </Label>
+                <Select
+                  value={newTask.difficulty}
+                  onValueChange={(value) =>
+                    setNewTask({
+                      ...newTask,
+                      difficulty: value as 'easy' | 'medium' | 'hard',
+                    })
+                  }
+                >
+                  <NeoSelectTrigger>
+                    <SelectValue />
+                  </NeoSelectTrigger>
+                  <NeoSelectContent>
+                    <NeoSelectItem value='easy'>🟢 Fácil</NeoSelectItem>
+                    <NeoSelectItem value='medium'>🟡 Medio</NeoSelectItem>
+                    <NeoSelectItem value='hard'>🔴 Difícil</NeoSelectItem>
+                  </NeoSelectContent>
+                </Select>
+              </div>
+
+              {/* Recurrencia y Duración */}
+              <div className='grid grid-cols-2 gap-4'>
+                <div>
+                  <Label
+                    htmlFor='recurringType'
+                    className='block text-sm font-display font-bold text-gray-800 mb-2'
+                  >
+                    🔄 Recurrencia
+                  </Label>
+                  <Select
+                    value={newTask.recurringType}
+                    onValueChange={(value) =>
+                      setNewTask({
+                        ...newTask,
+                        recurringType: value as
+                          | 'daily'
+                          | 'weekly'
+                          | 'monthly'
+                          | 'x_per_week'
+                          | 'x_per_month',
+                      })
+                    }
+                  >
+                    <NeoSelectTrigger>
+                      <SelectValue />
+                    </NeoSelectTrigger>
+                    <NeoSelectContent>
+                      <NeoSelectItem value='daily'>📅 Diario</NeoSelectItem>
+                      <NeoSelectItem value='weekly'>📆 Semanal</NeoSelectItem>
+                      <NeoSelectItem value='monthly'>🗓️ Mensual</NeoSelectItem>
+                      <NeoSelectItem value='x_per_week'>📊 X por semana</NeoSelectItem>
+                      <NeoSelectItem value='x_per_month'>📈 X por mes</NeoSelectItem>
+                    </NeoSelectContent>
+                  </Select>
                 </div>
-                <div className='bg-white p-2 rounded border'>
-                  <span className='font-medium text-blue-600'>⚡ XP Total:</span>
-                  <span className='ml-1 font-bold'>{calculatedRewards.totalXP}</span>
+
+                <div>
+                  <Label
+                    htmlFor='estimatedDuration'
+                    className='block text-sm font-display font-bold text-gray-800 mb-2'
+                  >
+                    ⏱️ Duración (min)
+                  </Label>
+                  <Input
+                    id='estimatedDuration'
+                    type='number'
+                    variant='neo'
+                    placeholder='30'
+                    value={newTask.estimatedDuration}
+                    onChange={(e) =>
+                      setNewTask({
+                        ...newTask,
+                        estimatedDuration: parseInt(e.target.value) || 0,
+                      })
+                    }
+                  />
                 </div>
               </div>
-              <div className='mt-2 text-xs text-gray-600'>
-                {formatXPBreakdown(calculatedRewards)}
+
+              {/* Recompensas automáticas calculadas */}
+              {calculatedRewards && (
+                <div className='bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border-2 border-purple-200'>
+                  <h4 className='font-display font-bold text-gray-800 mb-2 flex items-center gap-2'>
+                    ✨ Recompensas Automáticas
+                  </h4>
+                  <div className='grid grid-cols-2 gap-3 text-sm'>
+                    <div className='bg-white p-2 rounded border'>
+                      <span className='font-medium text-purple-600'>🪙 Monedas:</span>
+                      <span className='ml-1 font-bold'>{calculatedRewards.coinReward}</span>
+                    </div>
+                    <div className='bg-white p-2 rounded border'>
+                      <span className='font-medium text-blue-600'>⚡ XP Total:</span>
+                      <span className='ml-1 font-bold'>{calculatedRewards.totalXP}</span>
+                    </div>
+                  </div>
+                  <div className='mt-2 text-xs text-gray-600'>
+                    {formatXPBreakdown(calculatedRewards)}
+                  </div>
+                </div>
+              )}
+
+              {/* Error message */}
+              {error && (
+                <div className='text-red-600 text-sm bg-red-50 p-3 rounded-lg'>{error}</div>
+              )}
+
+              {/* Botones de acción */}
+              <div className='flex gap-3 pt-4 border-t-2 border-gray-300'>
+                <Button
+                  variant='neo-outline'
+                  onClick={() => onOpenChange(false)}
+                  className='flex-1 font-display font-bold'
+                >
+                  ❌ Cancelar
+                </Button>
+                <Button
+                  variant='neo-success'
+                  onClick={addTask}
+                  disabled={!newTask.title.trim() || !newTask.categoryId || isSubmitting}
+                  className='flex-1 font-display font-bold'
+                >
+                  {isSubmitting ? '🔄 Creando...' : '✨ Crear Tarea'}
+                </Button>
               </div>
             </div>
-          )}
-
-          {/* Error message */}
-          {error && <div className='text-red-600 text-sm bg-red-50 p-3 rounded-lg'>{error}</div>}
-
-          {/* Botones de acción */}
-          <div className='flex gap-3 pt-4 border-t-2 border-gray-300'>
-            <Button
-              variant='neo-outline'
-              onClick={() => onOpenChange(false)}
-              className='flex-1 font-display font-bold'
-            >
-              ❌ Cancelar
-            </Button>
-            <Button
-              variant='neo-success'
-              onClick={addTask}
-              disabled={!newTask.title.trim() || !newTask.categoryId || isSubmitting}
-              className='flex-1 font-display font-bold'
-            >
-              {isSubmitting ? '🔄 Creando...' : '✨ Crear Tarea'}
-            </Button>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       </NeoDialogContent>
     </Dialog>
   );

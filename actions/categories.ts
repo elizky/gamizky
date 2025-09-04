@@ -36,7 +36,7 @@ export async function createCategory(data: {
         description: data.description?.trim() || '',
         color: data.color || 'bg-gray-500',
         icon: data.icon || '📁',
-        primarySkill: 'discipline', // Default skill
+        primarySkill: 'mental', // Default skill (Mental/El Monje)
         subcategories: [],
       },
     });

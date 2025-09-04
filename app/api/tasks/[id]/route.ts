@@ -76,8 +76,8 @@ async function applyTaskRewards(task: { skillRewards: unknown; coinReward: numbe
     where: { userId },
   });
 
-  // Crear habilidades faltantes si no existen
-  const skillTypes = ['physical', 'wisdom', 'mental', 'social', 'creativity', 'discipline'];
+  // Crear habilidades faltantes si no existen (5 habilidades principales)
+  const skillTypes = ['physical', 'wisdom', 'mental', 'social', 'creativity'];
   for (const skillType of skillTypes) {
     if (!userSkills.find((s) => s.skillType === skillType)) {
       await db.userSkill.create({

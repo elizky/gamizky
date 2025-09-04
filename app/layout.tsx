@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Syne } from 'next/font/google';
 import './globals.css';
 import { NextAuthProvider } from '@/components/NextAuthProvider';
-import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration';
 
 const syne = Syne({
   variable: '--font-oxanium',
@@ -57,7 +56,6 @@ export default function RootLayout({
       <body className={`${syne.variable} antialiased`}>
         <NextAuthProvider>
           {children}
-          <ServiceWorkerRegistration />
         </NextAuthProvider>
       </body>
     </html>

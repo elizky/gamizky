@@ -12,6 +12,7 @@
     "migrate:reset": "npx dotenv -e .env.local -- prisma migrate reset",
     "db:seed": "npx dotenv -e .env.local -- prisma db seed",
     "setup:user": "npx tsx scripts/setup-user.ts",
+    "hard-reset": "npx dotenv -e .env.local -- tsx scripts/hard-reset.ts",
     "seed:challenges": "npx dotenv -e .env.local -- tsx scripts/seed-challenges.ts",
     "seed:shop": "npx dotenv -e .env.local -- tsx scripts/seed-shop.ts",
     "seed:achievements": "npx dotenv -e .env.local -- tsx scripts/seed-achievements.ts",
